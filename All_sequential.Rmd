@@ -258,9 +258,9 @@ View(gseaKEGG_results)
 
 ```{r}
 library(readxl)
-countData <- read_excel("~/Downloads/Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
+countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
-countData=countData[,c(1, 8:10,20:22)]
+countData=countData[,c(1, 4:6,17:19)]
 countData=aggregate(. ~gene_id , data = countData, sum)
 #countData <- tibble::column_to_rownames(countData, "simple")
 countData=column_to_rownames(countData,'gene_id')
@@ -477,13 +477,13 @@ View(gseaKEGG_results)
 
 ```{r}
 library(readxl)
-countData <- read_excel("~/Downloads/Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
+countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
-countData=countData[,c(1,11:13,23:24)]
+countData=countData[,c(1,8:10,20:22)]
 countData=aggregate(. ~gene_id , data = countData, sum)
 #countData <- tibble::column_to_rownames(countData, "simple")
 countData=column_to_rownames(countData,'gene_id')
-treatment=c("WT","WT","WT","KO","KO")
+treatment=c("WT","WT","WT","KO","KO","KO")
 colData=as_tibble(cbind(colnames(countData),treatment))
 colnames(colData)[1]="samplename"
 dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~treatment)
@@ -699,13 +699,13 @@ View(gseaKEGG_results)
 
 ```{r}
 library(readxl)
-countData <- read_excel("~/Downloads/Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
+countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
-countData=countData[,c(1,8:10,19:21)]
+countData=countData[,c(1,11:13,23:24)]
 countData=aggregate(. ~gene_id , data = countData, sum)
 #countData <- tibble::column_to_rownames(countData, "simple")
 countData=column_to_rownames(countData,'gene_id')
-treatment=c("WT","WT","WT","KO","KO","KO")
+treatment=c("WT","WT","WT","KO","KO")
 colData=as_tibble(cbind(colnames(countData),treatment))
 colnames(colData)[1]="samplename"
 dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~treatment)
@@ -937,74 +937,74 @@ four_n_twentyfour
 
 
 ```{r}
-
-library(readxl)
-countData <- read_excel("~/Downloads/Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
-colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
-countData=countData[,c(1,5:13,17:24)]
-countData=aggregate(. ~gene_id , data = countData, sum)
-#countData <- tibble::column_to_rownames(countData, "simple")
-countData=column_to_rownames(countData,'gene_id')
-treatment=c("WT","WT","WT","WT","WT","WT","WT","WT","WT","KO","KO","KO","KO","KO","KO","KO","KO")
-time=c(rep("4",3),rep("8",3),rep("24",3),rep("4",3),rep("8",3),rep("24",2))
-colData=as_tibble(cbind(colnames(countData),time,treatment))
-colData$group=str_c(treatment,time)
-colnames(colData)[1]="samplename"
-dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~group)
-dds=estimateSizeFactors(dds)
-sizeFactors(dds)
-dds=DESeq(dds)
-dds =dds[rowSums(counts(dds))>50,]
-sizeFactors(dds)
-rld=vst(dds)
-plotPCA(rld, intgroup=c("treatment"))
-
-#normalized_counts0=counts(dds, normalized=TRUE)
-
-normalized_counts1=results(dds)
-
-
-
-
-
-
-
-require(Biobase)
-normalized_counts1<-new("ExpressionSet", exprs=as.matrix(normalized_counts1))
-
-
-normalized_counts1$time= colData$group
-
-
-
-
-library(msigdbr)
-pathwaysDF <- msigdbr("mouse", category=c("H"))
-pathways <- split(as.character(pathwaysDF$entrez_gene), pathwaysDF$gs_name)
-
-library(fgsea)
-set.seed(1)
-gesecaRes <- geseca(pathways, exprs(normalized_counts1), minSize = 50, maxSize = 1000, eps = 0)
-
-
-plotGesecaTable(gesecaRes |> head(20), pathways,E=exprs(normalized_counts1))
-
-plotCoregulationProfile(pathway=pathways[["HALLMARK_GLYCOLYSIS"]],
-                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
-
-
-plotCoregulationProfile(pathway=pathways[["HALLMARK_INFLAMMATORY_RESPONSE"]],
-                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
-
-
-plotCoregulationProfile(pathway=pathways[["HALLMARK_FATTY_ACID_METABOLISM"]],
-                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
-
-
-plotCoregulationProfile(pathway=pathways[["HALLMARK_HYPOXIA"]],
-                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
-
-
+# 
+# library(readxl)
+# countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
+# colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
+# countData=countData[,c(1,5:13,17:24)]
+# countData=aggregate(. ~gene_id , data = countData, sum)
+# #countData <- tibble::column_to_rownames(countData, "simple")
+# countData=column_to_rownames(countData,'gene_id')
+# treatment=c("WT","WT","WT","WT","WT","WT","WT","WT","WT","KO","KO","KO","KO","KO","KO","KO","KO")
+# time=c(rep("4",3),rep("8",3),rep("24",3),rep("4",3),rep("8",3),rep("24",2))
+# colData=as_tibble(cbind(colnames(countData),time,treatment))
+# colData$group=str_c(treatment,time)
+# colnames(colData)[1]="samplename"
+# dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~group)
+# dds=estimateSizeFactors(dds)
+# sizeFactors(dds)
+# dds=DESeq(dds)
+# dds =dds[rowSums(counts(dds))>50,]
+# sizeFactors(dds)
+# rld=vst(dds)
+# plotPCA(rld, intgroup=c("treatment"))
+# 
+# #normalized_counts0=counts(dds, normalized=TRUE)
+# 
+# normalized_counts1=results(dds)
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# require(Biobase)
+# normalized_counts1<-new("ExpressionSet", exprs=as.matrix(normalized_counts1))
+# 
+# 
+# normalized_counts1$time= colData$group
+# 
+# 
+# 
+# 
+# library(msigdbr)
+# pathwaysDF <- msigdbr("mouse", category=c("H"))
+# pathways <- split(as.character(pathwaysDF$entrez_gene), pathwaysDF$gs_name)
+# 
+# library(fgsea)
+# set.seed(1)
+# gesecaRes <- geseca(pathways, exprs(normalized_counts1), minSize = 50, maxSize = 1000, eps = 0)
+# 
+# 
+# plotGesecaTable(gesecaRes |> head(20), pathways,E=exprs(normalized_counts1))
+# 
+# plotCoregulationProfile(pathway=pathways[["HALLMARK_GLYCOLYSIS"]],
+#                         E=exprs(normalized_counts1), conditions=normalized_counts1$time)
+# 
+# 
+# plotCoregulationProfile(pathway=pathways[["HALLMARK_INFLAMMATORY_RESPONSE"]],
+#                         E=exprs(normalized_counts1), conditions=normalized_counts1$time)
+# 
+# 
+# plotCoregulationProfile(pathway=pathways[["HALLMARK_FATTY_ACID_METABOLISM"]],
+#                         E=exprs(normalized_counts1), conditions=normalized_counts1$time)
+# 
+# 
+# plotCoregulationProfile(pathway=pathways[["HALLMARK_HYPOXIA"]],
+#                         E=exprs(normalized_counts1), conditions=normalized_counts1$time)
+# 
+# 
 
 ```
 
