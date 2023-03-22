@@ -29,7 +29,7 @@ invisible(lapply(packages, library, character.only = TRUE))
 
 ```{r}
 library(readxl)
-countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
+countData <- Gene_count_matrix_DEseq2_V4_NOT_normalized
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
 countData=countData[,c(1:4,14:16)]
 countData=aggregate(. ~gene_id , data = countData, sum)
@@ -49,20 +49,20 @@ plotPCA(rld, intgroup=c("treatment"))
 
 #normalized_counts0=counts(dds, normalized=TRUE)
 
-normalized_counts0=rld
+normalized_counts0=rld # NOT SURE OF THE NEED OF THIS LINE OF CODE. OVERLAPPING WITH LINE 62.
 
 
 
 res_table0=lfcShrink(dds, coef=2)
 #res_table0=results(dds, contrast = c("treatment", "WT", "KO"))
 
-padj.cutoff <- 0.05
-lfc.cutoff <- 1.5
+padj.cutoff <- 0.01 # @SOUGAT: Stringent.
+lfc.cutoff <- 1.1 # @SOUGAT: Lenient for larger coverage.
 
 normalized_counts0=counts(dds, normalized=TRUE)
 
 
-# 
+# @SOUGAT: IS THE FOLLOWING CHUNK (LINE - 65 TO 81) FOR REFERENCE?
 # normalized_counts0 <- normalized_counts0 %>%
 #   data.frame() %>%
 #   rownames_to_column(var="gene") %>% 
@@ -113,14 +113,10 @@ norm_sig0 <- normalized_counts_c0[,] %>%
 	           column_to_rownames(var = "gene") 
 
 ```
-
-
-
-
 ```{r}
 
-EnhancedVolcano(res_table0,lab = rownames(res_table0),x = 'log2FoldChange',y = 'pvalue', title = 'WT vs KO time 0', pCutoff = 5e-2, FCcutoff = 1.5, pointSize = 2.0,labSize = 4.0)
-
+EnhancedVolcano(res_table0,lab = rownames(res_table0),x = 'log2FoldChange', y = 'padj', title = 'WT vs KO time 0', pCutoff = 5e-2, FCcutoff = 1.1, pointSize = 2.0,labSize = 4.0)
+# FCcutoff can be changed to 1.1.
 
 ```
 
@@ -129,6 +125,16 @@ EnhancedVolcano(res_table0,lab = rownames(res_table0),x = 'log2FoldChange',y = '
 
 rg <- redgreen(20)
 pheatmap(norm_sig0,fontsize = 2,color = rg)
+
+#@SOUGAT: 
+# pheatmap requires log transformation of data. IMPORTANT
+#pheatmap(log2_norm_sig0,fontsize = 2,color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), border_color = grey(80, 0.5), cellwidth = 12.0, gaps_col = 3)
+
+norm_sig0_plus_one <- (norm_sig0 + 1)
+log2_norm_sig0_plus_one <- log2(norm_sig0_plus_one)
+head(log2_norm_sig0_plus_one, 10)
+pheatmap(log2_norm_sig0_plus_one, scale = "row", clustering_distance_rows = "correlation", cutree_cols = 2, fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "0 h", cluster_cols = FALSE, gaps_col = c(3))
+# Perhaps we can remove all the genes that starts with "Gm". We can provide these in the supplementary materials.
 
 ```
 
@@ -258,7 +264,7 @@ View(gseaKEGG_results)
 
 ```{r}
 library(readxl)
-countData <- read_excel("~/Downloads/Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
+countData <- Gene_count_matrix_DEseq2_V4_NOT_normalized
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
 countData=countData[,c(1, 8:10,20:22)]
 countData=aggregate(. ~gene_id , data = countData, sum)
@@ -285,8 +291,8 @@ normalized_counts4=rld
 res_table4=lfcShrink(dds, coef=2)
 #res_table4=results(dds, contrast = c("treatment", "WT", "KO"))
 
-padj.cutoff <- 0.05
-lfc.cutoff <- 2
+padj.cutoff <- 0.01 # @SOUGAT: Stringent.
+lfc.cutoff <- 1.1 # @SOUGAT: Lenient for larger coverage.
 
 normalized_counts4=counts(dds, normalized=TRUE)
 
@@ -358,6 +364,9 @@ EnhancedVolcano(res_table4,lab = rownames(res_table4),x = 'log2FoldChange',y = '
 
 rg <- redgreen(20)
 pheatmap(norm_sig4,fontsize = 2,color = rg)
+#@SOUGAT: 
+# pheatmap(norm_sig4,cluster_cols=FALSE, fontsize = 4,color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), border_color = grey(80, 0.5), cellwidth = 12.0, gaps_col = 3)
+
 
 ```
 
