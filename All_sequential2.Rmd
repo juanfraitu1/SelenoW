@@ -243,7 +243,7 @@ dds=DESeq(dds)
 dds =dds[rowSums(counts(dds))>5,]
 sizeFactors(dds)
 rld=vst(dds)
-plotPCA(rld, intgroup=c("treatment"))
+p4=plotPCA(rld, intgroup=c("treatment"))
 
 #normalized_counts4=counts(dds, normalized=TRUE)
 
@@ -305,6 +305,13 @@ norm_sig4 <- normalized_counts_c4[,] %>%
               dplyr::filter(normalized_counts_c4$gene %in% sig4$gene) %>%
 	           data.frame() %>%
 	           column_to_rownames(var = "gene") 
+
+
+
+pdf("PCA4.pdf")
+print(p4)
+dev.off()
+
 ```
 
 
@@ -463,7 +470,7 @@ dds=DESeq(dds)
 dds =dds[rowSums(counts(dds))>5,]
 sizeFactors(dds)
 rld=vst(dds)
-plotPCA(rld, intgroup=c("treatment"))
+p8=plotPCA(rld, intgroup=c("treatment"))
 
 #normalized_counts8=counts(dds, normalized=TRUE)
 
@@ -525,6 +532,13 @@ norm_sig8 <- normalized_counts_c8[,] %>%
               dplyr::filter(normalized_counts_c8$gene %in% sig8$gene) %>%
 	           data.frame() %>%
 	           column_to_rownames(var = "gene") 
+
+
+
+pdf("PCA8.pdf")
+print(p8)
+dev.off()
+
 ```
 
 
@@ -666,10 +680,10 @@ dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~t
 dds=estimateSizeFactors(dds)
 sizeFactors(dds)
 dds=DESeq(dds)
-dds =dds[rowSums(counts(dds))>50,]
+dds =dds[rowSums(counts(dds))>5,]
 sizeFactors(dds)
 rld=vst(dds)
-plotPCA(rld, intgroup=c("treatment"))
+p24=plotPCA(rld, intgroup=c("treatment"))
 
 #normalized_counts24=counts(dds, normalized=TRUE)
 
@@ -730,7 +744,13 @@ normalized_counts_c24 <- normalized_counts_c24 %>%
 norm_sig24 <- normalized_counts_c24[,] %>% 
               dplyr::filter(normalized_counts_c24$gene %in% sig24$gene) %>%
 	           data.frame() %>%
-	           column_to_rownames(var = "gene") 
+	           column_to_rownames(var = "gene")
+
+
+pdf("PCA24.pdf")
+print(p24)
+dev.off()
+
 
 ```
 
@@ -873,17 +893,32 @@ dev.off()
 
 
 
-ggvenn(list("24"=sig24$gene, "8"=sig8$gene,"4"=sig4$gene))
+venn3=ggvenn(list("24"=sig24$gene, "8"=sig8$gene,"4"=sig4$gene))
+
+venn4=ggvenn(list("24"=sig24$gene, "8"=sig8$gene,"4"=sig4$gene,"0"=sig0$gene))
+
 
 three_cond=intersect(intersect(sig24$gene,sig8$gene),sig4$gene)
-three_cond
+write.csv(three_cond,"common_24_8_4.csv")
 eight_n_four=intersect(sig4$gene,sig8$gene)
-eight_n_four
+write.csv(eight_n_four, "common_8_4")
 eight_n_twentyfour=intersect(sig8$gene,sig24$gene)
-eight_n_twentyfour
+write.csv(eight_n_twentyfour, "common_8_24.csv")
 four_n_twentyfour=intersect(sig4$gene,sig24$gene)
-four_n_twentyfour
+write.csv(four_n_twentyfour,"common_4_24.csv")
 write.csv(four_n_twentyfour,"four_n_twentyfour.csv")
+
+
+pdf("venn3.pdf")
+print(venn3)
+dev.off()
+
+pdf("venn4.pdf")
+print(venn4)
+dev.off()
+
+
+
 ```
 
 
