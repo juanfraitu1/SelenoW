@@ -1,0 +1,177 @@
+---
+title: "Two_factors"
+output:
+  pdf_document: default
+  html_document: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+"false"<=FALSE
+"true"<=TRUE
+
+knitr::opts_current$set(cache = TRUE, warning = FALSE,message = FALSE, cache.lazy = FALSE)
+```
+
+
+```{r, message=FALSE}
+# Package names
+packages <- c("ggrepel", "pheatmap", "DOSE", "clusterProfiler", "ensembldb", "annotables", "apeglm", "RColorBrewer", "vsn", "DESeq2", "ggplot2", "reshape2", "gage", "gageData", "AnnotationDbi", "tidyr", "dplyr", "org.Mm.eg.db", "gplots", "GO.db", "GOstats", "AnnotationHub", "pathview", "plyr", "tidyverse", "purrr", "GSEABase", "igraph", "vissE", "patchwork", "msigdb", "tibble", "msigdbr","fgsea", "GEOquery","EnhancedVolcano","ggvenn","readxl","msigdbr","Biobase")
+
+# Install packages not yet installed
+installed_packages <- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  BiocManager::install(packages[!installed_packages])
+}
+
+# Packages loading
+invisible(lapply(packages, library, character.only = TRUE))
+```
+
+
+
+
+
+
+
+```{r}
+
+
+countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
+colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
+countData=countData[,c(1,5:13,17:24)]
+countData=aggregate(. ~gene_id , data = countData, sum)
+countData=column_to_rownames(countData,'gene_id')
+treatment=c("WT","WT","WT","WT","WT","WT","WT","WT","WT","KO","KO","KO","KO","KO","KO","KO","KO")
+timee=c(rep("4",3),rep("8",3),rep("24",3),rep("4",3),rep("8",3),rep("24",2))
+#colData=as_tibble(cbind(colnames(countData),time,treatment))
+
+
+colData=as_tibble(cbind(colnames(countData),treatment,timee))
+colData$group=str_c(treatment,timee)
+colnames(colData)[1]="samplename"
+dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~timee+treatment+timee*treatment)
+dds=DESeq(dds)
+dds =dds[rowSums(counts(dds))>50,]
+sizeFactors(dds)
+rld=vst(dds)
+plotPCA(rld, intgroup=c("treatment"))
+
+
+res_table=results(dds)
+
+normalized_counts=counts(dds, normalized=TRUE)
+
+
+
+res_table_tb <- res_table %>%
+  data.frame() %>%
+  rownames_to_column(var="gene") %>% 
+  as_tibble()
+
+
+
+sig <- res_table_tb[which(res_table_tb[,7]<0.05 & abs(res_table_tb[,3])>1.5),]
+
+
+
+
+normalized_counts_c=counts(dds, normalized=TRUE)
+
+
+normalized_counts_c <- normalized_counts_c %>%
+  data.frame() %>%
+  rownames_to_column(var="gene") %>% 
+  as_tibble()
+
+norm_sig <- normalized_counts_c[,] %>% 
+              dplyr::filter(normalized_counts_c$gene %in% sig$gene) %>%
+	           data.frame() %>%
+	           column_to_rownames(var = "gene") 
+
+
+
+
+```
+
+
+
+```{r}
+phea=pheatmap(norm_sig, scale = "row", clustering_distance_rows = "correlation", fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "All times", cluster_rows = TRUE)
+
+
+
+
+rownames(norm_sig[phea$tree_row[["order"]],])
+
+
+sort(cutree(phea$tree_row, k=2))
+
+phea
+```
+
+
+
+
+```{r}
+
+
+normalized_counts=rlog(counts(dds))
+
+
+
+
+
+normalized_counts <- normalized_counts %>%
+  data.frame() %>%
+  rownames_to_column(var="gene") %>%
+  as_tibble()
+
+normalized_counts$entrez=mapIds(org.Mm.eg.db,key,keys = normalized_counts$gene,column = "ENTREZID", keytype = "SYMBOL", multiVals = "first")
+
+normalized_counts$gene=normalized_counts$entrez
+
+normalized_counts=normalized_counts[,1:24]
+
+normalized_counts=aggregate(. ~gene , data = normalized_counts, sum)
+
+normalized_counts <- normalized_counts %>%
+  data.frame() %>%
+ column_to_rownames(var = "gene")
+
+
+require(Biobase)
+normalized_counts1<-new("ExpressionSet", exprs=as.matrix(normalized_counts))
+
+
+normalized_counts1$time= colData$group
+
+
+
+
+pathwaysDF <- msigdbr("mouse", category=c("H"))
+pathways <- split(as.character(pathwaysDF$entrez_gene), pathwaysDF$gs_name)
+
+
+set.seed(1)
+gesecaRes <- geseca(pathways, exprs(normalized_counts1), minSize = 10, maxSize = 1000, eps = 0)
+
+plotGesecaTable(gesecaRes |> head(5), pathways,E=exprs(normalized_counts1),)
+
+plotCoregulationProfile(pathway=pathways[["HALLMARK_GLYCOLYSIS"]],
+                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
+
+
+plotCoregulationProfile(pathway=pathways[["HALLMARK_INFLAMMATORY_RESPONSE"]],
+                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
+
+
+plotCoregulationProfile(pathway=pathways[["HALLMARK_FATTY_ACID_METABOLISM"]],
+                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
+
+
+plotCoregulationProfile(pathway=pathways[["HALLMARK_HYPOXIA"]],
+                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
+
+
+
+```
