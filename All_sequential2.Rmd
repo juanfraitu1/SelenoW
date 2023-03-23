@@ -28,7 +28,6 @@ invisible(lapply(packages, library, character.only = TRUE))
 ```
 
 ```{r}
-library(readxl)
 countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24sig_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
 countData=countData[,c(1:4,14:16)]
@@ -150,9 +149,9 @@ gse0 <- gseGO(gene = zero_foldchanges,
 
 
 
-dotplot(gse0)
 
-dotplot(gse0, showCategory=10, split=".sign") + facet_grid(.~.sign)
+
+go0=dotplot(gse0, showCategory=10, split=".sign") + facet_grid(.~.sign)
 
 
 
@@ -190,6 +189,10 @@ dotplot(kk2, showCategory = 20, title = "Enriched Pathways" , split=".sign") + f
 
 
 
+pdf("GO_GSEA_KEGG0.pdf")
+print(go0)
+print(kk2)
+dev.off()
 
 ```
 
@@ -321,24 +324,6 @@ dev.off()
 
 
 
-```{r error=TRUE}
-four_foldchanges <- sig4$log2FoldChange
-
-names(four_foldchanges) <- sig4$gene
-
-
-four_foldchanges <- four_foldchanges[which(abs(four_foldchanges)>1.1)]
-
-four_foldchanges=sort(four_foldchanges,decreasing=TRUE)
-
-
-gse4 <- gseGO(gene = four_foldchanges, 
-                keyType = "ENTREZID",
-                OrgDb = org.Mm.eg.db, 
-                ont = "BP")
-
-
-```
 
 
 
@@ -383,11 +368,8 @@ gse4 <- gseGO(gene = four_foldchanges,
 
 
 
-<<<<<<< Updated upstream
-dotplot(gse4)
-=======
-dotplot(gse4, showCategory=10, split=".sign") + facet_grid(.~.sign)
->>>>>>> Stashed changes
+
+go4=dotplot(gse4, showCategory=10, split=".sign") + facet_grid(.~.sign)
 
 
 
@@ -425,6 +407,10 @@ dotplot(kk2, showCategory = 20, title = "Enriched Pathways" , split=".sign") + f
 
 
 
+pdf("GO_GSEA_KEGG4.pdf")
+print(go4)
+print(kk2)
+dev.off()
 
 ```
 
@@ -585,11 +571,9 @@ gse8 <- gseGO(gene = eight_foldchanges,
 
 
 
-<<<<<<< Updated upstream
-dotplot(gse8)
-=======
-dotplot(gse8, showCategory=10, split=".sign") + facet_grid(.~.sign)
->>>>>>> Stashed changes
+
+
+go8=dotplot(gse8, showCategory=10, split=".sign") + facet_grid(.~.sign)
 
 
 
@@ -628,6 +612,10 @@ dotplot(kk2, showCategory = 20, title = "Enriched Pathways" , split=".sign") + f
 
 
 
+pdf("GO_GSEA_KEGG8.pdf")
+print(go8)
+print(kk2)
+dev.off()
 ```
 
 
@@ -785,11 +773,8 @@ gse24 <- gseGO(gene = twentyfour_foldchanges,
 
 
 
-<<<<<<< Updated upstream
-dotplot(gse24)
-=======
-dotplot(gse24, showCategory=10, split=".sign") + facet_grid(.~.sign)
->>>>>>> Stashed changes
+go24=dotplot(gse24, showCategory=10, split=".sign") + facet_grid(.~.sign)
+
 
 
 
@@ -824,6 +809,13 @@ kegg_gene_list = sort(kegg_gene_list, decreasing = TRUE)
 kk2 <- gseKEGG(geneList= kegg_gene_list, organism= "mmu", nPerm = 10000, minGSSize    = 3,maxGSSize    = 1800, pvalueCutoff = 0.05,pAdjustMethod = "none",keyType= "kegg")
 
 dotplot(kk2, showCategory = 20, title = "Enriched Pathways" , split=".sign") + facet_grid(.~.sign)
+
+
+
+pdf("GO_GSEA_KEGG24.pdf")
+print(go24)
+print(kk2)
+dev.off()
 ```
 
 
