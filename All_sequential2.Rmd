@@ -63,6 +63,8 @@ res_table0_tb <- res_table0 %>%
 
 sig0 <- res_table0_tb[which(res_table0_tb[,7]<0.05),]
 
+sig0 <- res_table0_tb[which(abs(res_table0_tb[,3])>1.1),]
+
 
 normalized_counts_c0=counts(dds, normalized=TRUE)
 
@@ -96,7 +98,7 @@ EnhancedVolcano(res_table0,lab = rownames(res_table0),x = 'log2FoldChange',y = '
 
 ```{r}
 
-
+table
 hea0=pheatmap(norm_sig0, scale = "row", clustering_distance_rows = "correlation", cutree_cols = 2, fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "0 h", cluster_cols = FALSE, gaps_col = c(3))
 
 pdf("heatmap0.pdf", height = 27)
@@ -1095,12 +1097,8 @@ all_foldchanges <- sort(all_foldchanges, decreasing = TRUE)
 all_foldchanges=sort(all_foldchanges,decreasing=TRUE)
 
 
-gse <- gseGO(gene = all_foldchanges, 
-                keyType = "ENTREZID",
-                OrgDb = org.Mm.eg.db, 
-                ont = "MF")
 
-ego <- enrichGO(gene = sig_genes, 
+gse <- enrichGO(gene = sig_genes, 
                 universe = all_genes,
                 keyType = "ENTREZID",
                 OrgDb = org.Mm.eg.db, 
@@ -1155,7 +1153,7 @@ kk2 <- gseKEGG(geneList= kegg_gene_list, organism= "mmu", minGSSize    = 3,maxGS
 ```{r}
 
 
-normalized_counts=counts(dds, normalized=TRUE)
+normalized_counts=rlog(counts(dds))
 
 
 
@@ -1170,7 +1168,7 @@ normalized_counts$entrez=mapIds(org.Mm.eg.db,key,keys = normalized_counts$gene,c
 
 normalized_counts$gene=normalized_counts$entrez
 
-normalized_counts=normalized_counts[,1:18]
+normalized_counts=normalized_counts[,1:23]
 
 normalized_counts=aggregate(. ~gene , data = normalized_counts, sum)
 
