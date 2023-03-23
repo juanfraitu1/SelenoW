@@ -105,7 +105,13 @@ phea=pheatmap(norm_sig, scale = "row", clustering_distance_rows = "correlation",
 rownames(norm_sig[phea$tree_row[["order"]],])
 
 
-sort(cutree(phea$tree_row, k=2))
+a=sort(cutree(phea$tree_row, k=2))
+
+WT_only=names(a[a==1])
+write.csv(WT_only,"WT_only.csv")
+
+KO_only=names(a[a==2])
+write.csv(KO_only,"KO_only.csv")
 
 pdf("heatmap.pdf", height = 27)
 print(phea)
@@ -198,7 +204,7 @@ kgg <- gseKEGG(geneList= kegg_gene_list, organism= "mmu", minGSSize    = 3,maxGS
 kegg=dotplot(kgg)
 
 
-pdf("GO_dotplot.pdf", height=27)
+pdf("GO_dotplot.pdf", height=13)
 print(go_dp)
 dev.off()
 
@@ -260,25 +266,57 @@ pathways <- split(as.character(pathwaysDF$entrez_gene), pathwaysDF$gs_name)
 
 
 set.seed(1)
-gesecaRes <- geseca(pathways, exprs(normalized_counts1), minSize = 10, maxSize = 1000, eps = 0)
+gesecaRes <- geseca(pathways, exprs(normalized_counts1), minSize = 10, maxSize = 1000, eps = 0,nPermSimple = 10000)
 
-plotGesecaTable(gesecaRes |> head(5), pathways,E=exprs(normalized_counts1),)
+geseres=plotGesecaTable(gesecaRes |> head(5), pathways,E=exprs(normalized_counts1),)
 
-plotCoregulationProfile(pathway=pathways[["HALLMARK_GLYCOLYSIS"]],
+IFNG=plotCoregulationProfile(pathway=pathways[["HALLMARK_INTERFERON_GAMMA_RESPONSE"]],
                         E=exprs(normalized_counts1), conditions=normalized_counts1$time)
 
 
-plotCoregulationProfile(pathway=pathways[["HALLMARK_INFLAMMATORY_RESPONSE"]],
+INF=plotCoregulationProfile(pathway=pathways[["HALLMARK_INFLAMMATORY_RESPONSE"]],
                         E=exprs(normalized_counts1), conditions=normalized_counts1$time)
 
 
-plotCoregulationProfile(pathway=pathways[["HALLMARK_FATTY_ACID_METABOLISM"]],
+TNF_NFKB=plotCoregulationProfile(pathway=pathways[["HALLMARK_TNFA_SIGNALING_VIA_NFKB"]],
                         E=exprs(normalized_counts1), conditions=normalized_counts1$time)
 
 
-plotCoregulationProfile(pathway=pathways[["HALLMARK_HYPOXIA"]],
+TNFA=plotCoregulationProfile(pathway=pathways[["HALLMARK_INTERFERON_ALPHA_RESPONSE"]],
+                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
+
+E2F=plotCoregulationProfile(pathway=pathways[["HALLMARK_E2F_TARGETS"]],
                         E=exprs(normalized_counts1), conditions=normalized_counts1$time)
 
 
+
+pdf("IFNG.pdf",width = 10)
+print(IFNG)
+dev.off()
+
+
+pdf("IFN.pdf",width = 10)
+print(gsea)
+dev.off()
+
+
+pdf("TNF_NFKB.pdf",width = 10)
+print(TNF_NFKB)
+dev.off()
+
+
+pdf("TNFA.pdf",width = 10)
+print(TNFA)
+dev.off()
+
+
+pdf("E2F.pdf",width = 10)
+print(E2F)
+dev.off()
+
+
+pdf("geseca.pdf",width = 10)
+print(geseres)
+dev.off()
 
 ```
