@@ -205,10 +205,12 @@ gse <- gseGO(gene = kegg_gene_list,
 
 gsea=dotplot(gse, showCategory=10)
 
-gseap=gseaplot(gse, by = "all", title = gse$Description[1], geneSetID = 1)
+gseap=gseaplot(gse, by = "all", title = gse$Description[35], geneSetID = 35)
 
 
 kgg <- gseKEGG(geneList= kegg_gene_list, organism= "mmu", minGSSize    = 3,maxGSSize    = 1800, pvalueCutoff = 0.05,pAdjustMethod = "none",keyType= "kegg")
+
+
 
 kegg=dotplot(kgg)
 
@@ -217,6 +219,10 @@ pdf("GO_dotplot.pdf", height=13)
 print(go_dp)
 dev.off()
 
+
+pdf("gsea_plot.pdf")
+print(gseap)
+dev.off()
 
 pdf("gsea_dotplot.pdf")
 print(gsea)
@@ -228,16 +234,13 @@ print(kegg)
 dev.off()
 
 
-kegg_gene_list <- df2$gene
+pdf("network.pdf",width = 10)
+print(netplot)
+dev.off()
 
 
-a=sig_genes[!is.na(sig_genes)]
 
-edo <- enrichDGN(de)
 
-de <- names(all_foldchanges)[abs(all_foldchanges) > 2]
-
-de <- names(geneList)[abs(geneList) > 2]
 
 
 ```
@@ -339,5 +342,6 @@ dev.off()
 pdf("geseca.pdf",width = 10)
 print(geseres)
 dev.off()
+
 
 ```
