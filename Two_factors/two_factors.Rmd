@@ -144,7 +144,9 @@ all_foldchanges <- res_entrez$log2FoldChange
 names(all_foldchanges) <- res_entrez$entrez
 all_foldchanges <- sort(all_foldchanges, decreasing = TRUE)
 
+symbol_foldchanges=sig$log2FoldChange
 
+names(symbol_foldchanges)=sig$gene
 
 
 all_foldchanges=sort(all_foldchanges,decreasing=TRUE)
@@ -162,7 +164,14 @@ go <- enrichGO(gene = sig_genes,
 
 
 
+
+
+
 go_dp=dotplot(go, showCategory=32)
+
+
+
+netplot=cnetplot(go, foldchange=all_foldchanges)
 
 
 ids<-bitr(rownames(norm_sig), fromType = "SYMBOL", toType = "ENTREZID", OrgDb=org.Mm.eg.db)
@@ -217,6 +226,18 @@ dev.off()
 pdf("kegg_dotplot.pdf")
 print(kegg)
 dev.off()
+
+
+kegg_gene_list <- df2$gene
+
+
+a=sig_genes[!is.na(sig_genes)]
+
+edo <- enrichDGN(de)
+
+de <- names(all_foldchanges)[abs(all_foldchanges) > 2]
+
+de <- names(geneList)[abs(geneList) > 2]
 
 
 ```
