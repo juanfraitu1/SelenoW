@@ -172,7 +172,11 @@ gse0 <- gseGO(gene = zero_foldchanges,
 
 
 
+<<<<<<< Updated upstream
 dotplot(gse0)
+=======
+dotplot(gse0, showCategory=10, split=".sign") + facet_grid(.~.sign)
+>>>>>>> Stashed changes
 
 
 
@@ -405,7 +409,11 @@ gse4 <- gseGO(gene = four_foldchanges,
 
 
 
+<<<<<<< Updated upstream
 dotplot(gse4)
+=======
+dotplot(gse4, showCategory=10, split=".sign") + facet_grid(.~.sign)
+>>>>>>> Stashed changes
 
 
 
@@ -667,7 +675,11 @@ gse8 <- gseGO(gene = eight_foldchanges,
 
 
 
+<<<<<<< Updated upstream
 dotplot(gse8)
+=======
+dotplot(gse8, showCategory=10, split=".sign") + facet_grid(.~.sign)
+>>>>>>> Stashed changes
 
 
 
@@ -865,7 +877,11 @@ gse24 <- gseGO(gene = twentyfour_foldchanges,
 
 
 
+<<<<<<< Updated upstream
 dotplot(gse24)
+=======
+dotplot(gse24, showCategory=10, split=".sign") + facet_grid(.~.sign)
+>>>>>>> Stashed changes
 
 
 
