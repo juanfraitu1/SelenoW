@@ -980,9 +980,9 @@ pathways <- split(as.character(pathwaysDF$entrez_gene), pathwaysDF$gs_name)
 
 
 set.seed(1)
-gesecaRes <- geseca(pathways, exprs(normalized_counts1), minSize = 50, maxSize = 1000, eps = 0)
+gesecaRes <- geseca(pathways, exprs(normalized_counts1), minSize = 10, maxSize = 1000, eps = 0)
 
-plotGesecaTable(gesecaRes |> head(20), pathways,E=exprs(normalized_counts1),)
+plotGesecaTable(gesecaRes |> head(50), pathways,E=exprs(normalized_counts1),)
 
 plotCoregulationProfile(pathway=pathways[["HALLMARK_GLYCOLYSIS"]],
                         E=exprs(normalized_counts1), conditions=normalized_counts1$time)
