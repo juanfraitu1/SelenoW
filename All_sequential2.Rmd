@@ -32,7 +32,6 @@ countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24sig_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
 countData=countData[,c(1:4,14:16)]
 countData=aggregate(. ~gene_id , data = countData, sum)
-#countData <- tibble::column_to_rownames(countData, "simple")
 countData=column_to_rownames(countData,'gene_id')
 treatment=c("WT","WT","WT","KO","KO","KO")
 colData=as_tibble(cbind(colnames(countData),treatment))
@@ -155,7 +154,7 @@ go0=dotplot(gse0, showCategory=10, split=".sign") + facet_grid(.~.sign)
 
 
 
-gseaplot(gse0, by = "all", title = gse0$Description[1], geneSetID = 1)
+gsea0=gseaplot(gse0, by = "all", title = gse0$Description[1], geneSetID = 1)
 
 
 
@@ -189,10 +188,20 @@ dotplot(kk2, showCategory = 20, title = "Enriched Pathways" , split=".sign") + f
 
 
 
-pdf("GO_GSEA_KEGG0.pdf")
+pdf("GO0.pdf")
 print(go0)
+dev.off()
+
+
+pdf("GSEA0.pdf")
+print(gsea0)
+dev.off()
+
+pdf("KEGG0.pdf")
 print(kk2)
 dev.off()
+
+
 
 ```
 
@@ -223,7 +232,6 @@ countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
 countData=countData[,c(1, 4:6,17:19)]
 countData=aggregate(. ~gene_id , data = countData, sum)
-#countData <- tibble::column_to_rownames(countData, "simple")
 countData=column_to_rownames(countData,'gene_id')
 treatment=c("WT","WT","WT","KO","KO","KO")
 colData=as_tibble(cbind(colnames(countData),treatment))
@@ -373,7 +381,7 @@ go4=dotplot(gse4, showCategory=10, split=".sign") + facet_grid(.~.sign)
 
 
 
-gseaplot(gse4, by = "all", title = gse4$Description[1], geneSetID = 1)
+gsea4=gseaplot(gse4, by = "all", title = gse4$Description[1], geneSetID = 1)
 
 
 
@@ -407,10 +415,19 @@ dotplot(kk2, showCategory = 20, title = "Enriched Pathways" , split=".sign") + f
 
 
 
-pdf("GO_GSEA_KEGG4.pdf")
+pdf("GO4.pdf")
 print(go4)
+dev.off()
+
+
+pdf("GSEA4.pdf")
+print(gsea4)
+dev.off()
+
+pdf("KEGG4.pdf")
 print(kk2)
 dev.off()
+
 
 ```
 
@@ -435,7 +452,6 @@ countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
 countData=countData[,c(1,8:10,20:22)]
 countData=aggregate(. ~gene_id , data = countData, sum)
-#countData <- tibble::column_to_rownames(countData, "simple")
 countData=column_to_rownames(countData,'gene_id')
 treatment=c("WT","WT","WT","KO","KO","KO")
 colData=as_tibble(cbind(colnames(countData),treatment))
@@ -577,7 +593,7 @@ go8=dotplot(gse8, showCategory=10, split=".sign") + facet_grid(.~.sign)
 
 
 
-gseaplot(gse8, by = "all", title = gse8$Description[1], geneSetID = 1)
+gsea8=gseaplot(gse8, by = "all", title = gse8$Description[1], geneSetID = 1)
 
 
 
@@ -611,9 +627,16 @@ dotplot(kk2, showCategory = 20, title = "Enriched Pathways" , split=".sign") + f
 
 
 
-
-pdf("GO_GSEA_KEGG8.pdf")
+pdf("GO8.pdf")
 print(go8)
+dev.off()
+
+
+pdf("GSEA8.pdf")
+print(gsea8)
+dev.off()
+
+pdf("KEGG8.pdf")
 print(kk2)
 dev.off()
 ```
@@ -635,7 +658,6 @@ countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
 countData=countData[,c(1,11:13,23:24)]
 countData=aggregate(. ~gene_id , data = countData, sum)
-#countData <- tibble::column_to_rownames(countData, "simple")
 countData=column_to_rownames(countData,'gene_id')
 treatment=c("WT","WT","WT","KO","KO")
 colData=as_tibble(cbind(colnames(countData),treatment))
@@ -778,7 +800,7 @@ go24=dotplot(gse24, showCategory=10, split=".sign") + facet_grid(.~.sign)
 
 
 
-gseaplot(gse24, by = "all", title = gse24$Description[1], geneSetID = 1)
+gsea24=gseaplot(gse24, by = "all", title = gse24$Description[1], geneSetID = 1)
 
 
 
@@ -812,10 +834,22 @@ dotplot(kk2, showCategory = 20, title = "Enriched Pathways" , split=".sign") + f
 
 
 
-pdf("GO_GSEA_KEGG24.pdf")
+pdf("GO24.pdf")
 print(go24)
+dev.off()
+
+
+pdf("GSEA24.pdf")
+print(gsea24)
+dev.off()
+
+pdf("KEGG24.pdf")
 print(kk2)
 dev.off()
+
+
+
+
 ```
 
 
@@ -864,7 +898,6 @@ countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
 countData=countData[,c(1,5:13,17:24)]
 countData=aggregate(. ~gene_id , data = countData, sum)
-#countData <- tibble::column_to_rownames(countData, "simple")
 countData=column_to_rownames(countData,'gene_id')
 treatment=c("WT","WT","WT","WT","WT","WT","WT","WT","WT","KO","KO","KO","KO","KO","KO","KO","KO")
 timee=c(rep("4",3),rep("8",3),rep("24",3),rep("4",3),rep("8",3),rep("24",2))
@@ -931,141 +964,8 @@ pheatmap(norm_sig, scale = "row", clustering_distance_rows = "correlation", font
 
 
 
-```{r}
 
 
-normalized_counts=counts(dds, normalized=TRUE)
-
-
-
-
-
-normalized_counts <- normalized_counts %>%
-  data.frame() %>%
-  rownames_to_column(var="gene") %>%
-  as_tibble()
-
-normalized_counts$entrez=mapIds(org.Mm.eg.db,key,keys = normalized_counts$gene,column = "ENTREZID", keytype = "SYMBOL", multiVals = "first")
-
-normalized_counts$gene=normalized_counts$entrez
-
-normalized_counts=normalized_counts[,1:18]
-
-normalized_counts=aggregate(. ~gene , data = normalized_counts, sum)
-
-normalized_counts <- normalized_counts %>%
-  data.frame() %>%
- column_to_rownames(var = "gene")
-
-
-require(Biobase)
-normalized_counts1<-new("ExpressionSet", exprs=as.matrix(normalized_counts))
-
-
-normalized_counts1$time= colData$group
-
-
-
-
-pathwaysDF <- msigdbr("mouse", category=c("H"))
-pathways <- split(as.character(pathwaysDF$entrez_gene), pathwaysDF$gs_name)
-
-
-set.seed(1)
-gesecaRes <- geseca(pathways, exprs(normalized_counts1), minSize = 10, maxSize = 1000, eps = 0)
-
-plotGesecaTable(gesecaRes |> head(50), pathways,E=exprs(normalized_counts1),)
-
-plotCoregulationProfile(pathway=pathways[["HALLMARK_GLYCOLYSIS"]],
-                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
-
-
-plotCoregulationProfile(pathway=pathways[["HALLMARK_INFLAMMATORY_RESPONSE"]],
-                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
-
-
-plotCoregulationProfile(pathway=pathways[["HALLMARK_FATTY_ACID_METABOLISM"]],
-                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
-
-
-plotCoregulationProfile(pathway=pathways[["HALLMARK_HYPOXIA"]],
-                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
-
-
-
-```
-
-
-
-
-
-
-
-
-
-
-```{r}
-data("go.sets.mm")
-data("go.subs.mm")
-```
-
-
-```{r}
-go_bp_sets=go.sets.mm[go.subs.mm$BP]
-go_bp_res=gage(exprs=zero_foldchanges, gsets=go.sets.mm, same.dir = TRUE)
-```
-
-
-```{r}
-data("kegg.sets.mm")
-data("sigmet.idx.mm")
-kegg.sets.mm=kegg.sets.mm[sigmet.idx.mm]
-
-```
-
-```{r}
-keggres=gage(exprs=zero_foldchanges, gsets = kegg.sets.mm, same.dir = TRUE)
-keggrespathways_greater=data.frame(id=rownames(keggres$greater), keggres$greater) %>%
-  tibble::as_tibble() %>%
-  filter(row_number() <= 50) %>%
-  .$id %>%
-  as.character()
-keggrespathways_greater
-```
-
-```{r}
-keggrespathways_lower=data.frame(id=rownames(keggres$less),
-  keggres$less) %>%
-  tibble::as_tibble() %>%
-  filter(row_number() <= 50) %>%
-  .$id %>%
-  as.character()
-keggrespathways_lower
-```
-
-```{r}
-keggresids=substr(keggrespathways_greater, start=1, stop=8)
-keggresids
-```
-
-
-```{r}
-##tmp=sapply(keggresids, function(pid) pathview(gene.data = foldchanges, pathway.id = pid, species = "mmu"))
-
-
-gse <- gseGO(geneList=gene_list, 
-             ont ="ALL", 
-             keyType = "ENSEMBL", 
-             nPerm = 10000, 
-             minGSSize = 3, 
-             maxGSSize = 800, 
-             pvalueCutoff = 0.05, 
-             verbose = TRUE, 
-             OrgDb = organism, 
-             pAdjustMethod = "none")
-
-
-```
 
 
 
@@ -1077,7 +977,6 @@ gse <- gseGO(geneList=gene_list,
 countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
 countData=aggregate(. ~gene_id , data = countData, sum)
-#countData <- tibble::column_to_rownames(countData, "simple")
 countData=column_to_rownames(countData,'gene_id')
 treatment=c("WT","WT","WT","WT","WT","WT","WT","WT","WT","WT","WT","WT","KO","KO","KO","KO","KO","KO","KO","KO","KO","KO","KO")
 timee=c(rep("0",3),rep("4",3),rep("8",3),rep("24",3),rep("0",3),rep("4",3),rep("8",3),rep("24",2))
@@ -1207,6 +1106,74 @@ kk2 <- gseKEGG(geneList= kegg_gene_list, organism= "mmu", nPerm = 10000, minGSSi
 
 
 ```
+
+
+
+```{r}
+
+
+normalized_counts=counts(dds, normalized=TRUE)
+
+
+
+
+
+normalized_counts <- normalized_counts %>%
+  data.frame() %>%
+  rownames_to_column(var="gene") %>%
+  as_tibble()
+
+normalized_counts$entrez=mapIds(org.Mm.eg.db,key,keys = normalized_counts$gene,column = "ENTREZID", keytype = "SYMBOL", multiVals = "first")
+
+normalized_counts$gene=normalized_counts$entrez
+
+normalized_counts=normalized_counts[,1:18]
+
+normalized_counts=aggregate(. ~gene , data = normalized_counts, sum)
+
+normalized_counts <- normalized_counts %>%
+  data.frame() %>%
+ column_to_rownames(var = "gene")
+
+
+require(Biobase)
+normalized_counts1<-new("ExpressionSet", exprs=as.matrix(normalized_counts))
+
+
+normalized_counts1$time= colData$group
+
+
+
+
+pathwaysDF <- msigdbr("mouse", category=c("H"))
+pathways <- split(as.character(pathwaysDF$entrez_gene), pathwaysDF$gs_name)
+
+
+set.seed(1)
+gesecaRes <- geseca(pathways, exprs(normalized_counts1), minSize = 10, maxSize = 1000, eps = 0)
+
+plotGesecaTable(gesecaRes |> head(50), pathways,E=exprs(normalized_counts1),)
+
+plotCoregulationProfile(pathway=pathways[["HALLMARK_GLYCOLYSIS"]],
+                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
+
+
+plotCoregulationProfile(pathway=pathways[["HALLMARK_INFLAMMATORY_RESPONSE"]],
+                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
+
+
+plotCoregulationProfile(pathway=pathways[["HALLMARK_FATTY_ACID_METABOLISM"]],
+                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
+
+
+plotCoregulationProfile(pathway=pathways[["HALLMARK_HYPOXIA"]],
+                        E=exprs(normalized_counts1), conditions=normalized_counts1$time)
+
+
+
+```
+
+
 
 
 
