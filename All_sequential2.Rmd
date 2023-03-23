@@ -1026,7 +1026,7 @@ dds=DESeq(dds)
 dds =dds[rowSums(counts(dds))>50,]
 sizeFactors(dds)
 rld=vst(dds)
-plotPCA(rld, intgroup=c("treatment"))
+plotPCA(rld, intgroup=c("treatment","timee"))
 
 
 res_table=results(dds)
@@ -1098,8 +1098,16 @@ all_foldchanges=sort(all_foldchanges,decreasing=TRUE)
 gse <- gseGO(gene = all_foldchanges, 
                 keyType = "ENTREZID",
                 OrgDb = org.Mm.eg.db, 
-                ont = "ALL")
+                ont = "MF")
 
+ego <- enrichGO(gene = sig_genes, 
+                universe = all_genes,
+                keyType = "ENTREZID",
+                OrgDb = org.Mm.eg.db, 
+                ont = "ALL", 
+                pAdjustMethod = "BH", 
+                qvalueCutoff = 0.05, 
+                readable = TRUE)
 
 
 
@@ -1137,7 +1145,7 @@ kegg_gene_list<-na.omit(kegg_gene_list)
 kegg_gene_list = sort(kegg_gene_list, decreasing = TRUE)
 
 
-kk2 <- gseKEGG(geneList= kegg_gene_list, organism= "mmu", nPerm = 10000, minGSSize    = 3,maxGSSize    = 1800, pvalueCutoff = 0.05,pAdjustMethod = "none",keyType= "kegg")
+kk2 <- gseKEGG(geneList= kegg_gene_list, organism= "mmu", minGSSize    = 3,maxGSSize    = 1800, pvalueCutoff = 0.05,pAdjustMethod = "none",keyType= "kegg")
 
 
 ```
