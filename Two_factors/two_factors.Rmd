@@ -69,6 +69,16 @@ res_table_tb <- res_table %>%
 
 sig <- res_table_tb[which(res_table_tb[,7]<0.05 & abs(res_table_tb[,3])>1.5),]
 
+up_sig=as.tibble(head(sig, 50))
+
+down_sig=as.tibble(tail(sig,50))
+
+both=list(up_sig, down_sig)
+
+summ=reduce(both, bind_rows)
+
+write.csv(summ, "summary_up_down.csv")
+
 
 normalized_counts_c=counts(dds, normalized=TRUE)
 
@@ -326,6 +336,35 @@ E2F=plotCoregulationProfile(pathway=pathways[["HALLMARK_E2F_TARGETS"]],
 
 
 
+
+
+
+
+fgseaRes <- fgsea(pathways = pathways, 
+                  stats    = all_foldchanges,)
+
+
+fgseaResTidy <- fgseaRes %>%
+  as_tibble() %>%
+  arrange(desc(NES))
+
+# Show in a nice table:
+fgseaResTidy %>% 
+  dplyr::select(-leadingEdge, -ES) %>% 
+  arrange(padj) %>% 
+  DT::datatable()
+
+
+
+fgsearesgraph=ggplot(fgseaResTidy, aes(reorder(pathway, NES), NES)) +
+  geom_col(aes(fill=padj<0.05)) +
+  coord_flip() +
+  labs(x="Pathway", y="Normalized Enrichment Score",
+       title="Hallmark pathways NES from GSEA") + 
+  theme_minimal()
+
+
+
 pdf("IFNG.pdf",width = 10)
 print(IFNG)
 dev.off()
@@ -354,6 +393,15 @@ dev.off()
 pdf("geseca.pdf",width = 10)
 print(geseres)
 dev.off()
+
+
+
+pdf("fgsearesgraph.pdf",width = 10)
+print(fgsearesgraph)
+dev.off()
+
+
+
 
 
 ```
