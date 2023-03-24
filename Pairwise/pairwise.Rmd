@@ -100,7 +100,7 @@ EnhancedVolcano(res_table0,lab = rownames(res_table0),x = 'log2FoldChange',y = '
 
 hea0=pheatmap(norm_sig0, scale = "row", clustering_distance_rows = "correlation", cutree_cols = 2, fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "0 h", cluster_cols = FALSE, gaps_col = c(3))
 
-pdf("heatmap0.pdf", height = 27)
+pdf("heatmap0.pdf", height = 33)
 print(hea0)
 dev.off()
 
@@ -273,7 +273,7 @@ sizeFactors(dds)
 dds=DESeq(dds)
 dds =dds[rowSums(counts(dds))>5,]
 sizeFactors(dds)
-rld=vst(dds)
+rld=rlog(dds)
 p4=plotPCA(rld, intgroup=c("treatment"))
 
 #normalized_counts4=counts(dds, normalized=TRUE)
@@ -362,7 +362,7 @@ EnhancedVolcano(res_table4,lab = rownames(res_table4),x = 'log2FoldChange',y = '
 hea4=pheatmap(norm_sig4, scale = "row", clustering_distance_rows = "correlation", cutree_cols = 2, fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "4 h", cluster_cols = FALSE, gaps_col = c(3))
 
 
-pdf("heatmap0.pdf", height = 27)
+pdf("heatmap4.pdf", height = 31)
 print(hea4)
 dev.off()
 ```
@@ -523,7 +523,7 @@ sizeFactors(dds)
 dds=DESeq(dds)
 dds =dds[rowSums(counts(dds))>5,]
 sizeFactors(dds)
-rld=vst(dds)
+rld=rlog(dds)
 p8=plotPCA(rld, intgroup=c("treatment"))
 
 #normalized_counts8=counts(dds, normalized=TRUE)
@@ -769,7 +769,7 @@ sizeFactors(dds)
 dds=DESeq(dds)
 dds =dds[rowSums(counts(dds))>5,]
 sizeFactors(dds)
-rld=vst(dds)
+rld=rlog(dds)
 p24=plotPCA(rld, intgroup=c("treatment"))
 
 #normalized_counts24=counts(dds, normalized=TRUE)
