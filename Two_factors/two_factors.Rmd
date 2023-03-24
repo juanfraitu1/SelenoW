@@ -167,7 +167,7 @@ go <- enrichGO(gene = sig_genes,
 
 
 
-go_dp=dotplot(go, showCategory=32)
+go_dp=dotplot(go, showCategory=60)
 
 
 
@@ -203,16 +203,30 @@ gse <- gseGO(gene = kegg_gene_list,
                 OrgDb = org.Mm.eg.db, 
                 ont = "ALL",     pAdjustMethod = "BH",)
 
-gsea=dotplot(gse, showCategory=30)
+gsea=dotplot(gse, showCategory=50)
 
-gseap=gseaplot(gse, by = "all", title = gse$Description[35], geneSetID = 35)
+
+a=lapply(1:30, function(i) {gseaplot(gse, by = "all", title = gse$Description[i], geneSetID = i)})
+
+
+
+pdf("gseas.pdf",width = 10)
+print(a)
+dev.off()
 
 
 kgg <- gseKEGG(geneList= kegg_gene_list, organism= "mmu", minGSSize    = 3,maxGSSize    = 1800, pvalueCutoff = 0.05,pAdjustMethod = "none",keyType= "kegg")
 
 
 
-kegg=dotplot(kgg)
+kegg=dotplot(kgg, showCategory=80)
+
+
+pathwayss <- lapply(1:10, function(x) {
+   pathview(gene.data = foldchanges, pathway.id = kgg$ID[x], species = "mmu")
+})
+
+
 
 
 pdf("GO_dotplot.pdf", height=13)
@@ -220,16 +234,13 @@ print(go_dp)
 dev.off()
 
 
-pdf("gsea_plot.pdf")
-print(gseap)
-dev.off()
 
 pdf("gsea_dotplot.pdf")
 print(gsea)
 dev.off()
 
 
-pdf("kegg_dotplot.pdf")
+pdf("kegg_dotplot.pdf", width=10, height=30)
 print(kegg)
 dev.off()
 
@@ -237,6 +248,7 @@ dev.off()
 pdf("network.pdf",width = 10)
 print(netplot)
 dev.off()
+
 
 
 
