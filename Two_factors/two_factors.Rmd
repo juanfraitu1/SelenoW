@@ -347,29 +347,3 @@ dev.off()
 ```
 
 
-
-
-
-```{r}
-venn3=ggvenn(list("24"=sig24$gene, "8"=sig8$gene,"4"=sig4$gene))
-venn4=ggvenn(list("24"=sig24$gene, "8"=sig8$gene,"4"=sig4$gene,"0"=sig0$gene))
-three_cond=intersect(intersect(sig24$gene,sig8$gene),sig4$gene)
-write.csv(three_cond,"common_24_8_4.csv")
-eight_n_four=intersect(sig4$gene,sig8$gene)
-write.csv(eight_n_four, "common_8_4")
-eight_n_twentyfour=intersect(sig8$gene,sig24$gene)
-write.csv(eight_n_twentyfour, "common_8_24.csv")
-four_n_twentyfour=intersect(sig4$gene,sig24$gene)
-write.csv(four_n_twentyfour,"common_4_24.csv")
-write.csv(four_n_twentyfour,"four_n_twentyfour.csv")
-pdf("venn3.pdf")
-print(venn3)
-dev.off()
-pdf("venn4.pdf")
-print(venn4)
-dev.off()
-
-
-
-
-```
