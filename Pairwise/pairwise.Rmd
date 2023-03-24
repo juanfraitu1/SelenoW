@@ -359,7 +359,7 @@ EnhancedVolcano(res_table4,lab = rownames(res_table4),x = 'log2FoldChange',y = '
 
 ```{r}
 
-hea4=pheatmap(norm_sig4, scale = "row", clustering_distance_rows = "correlation", cutree_cols = 2, fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "0 h", cluster_cols = FALSE, gaps_col = c(3))
+hea4=pheatmap(norm_sig4, scale = "row", clustering_distance_rows = "correlation", cutree_cols = 2, fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "4 h", cluster_cols = FALSE, gaps_col = c(3))
 
 
 pdf("heatmap0.pdf", height = 27)
@@ -607,7 +607,7 @@ EnhancedVolcano(res_table8,lab = rownames(res_table8),x = 'log2FoldChange',y = '
 
 
 ```{r}
-hea8=pheatmap(norm_sig8, scale = "row", clustering_distance_rows = "correlation", cutree_cols = 2, fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "0 h", cluster_cols = FALSE, gaps_col = c(3))
+hea8=pheatmap(norm_sig8, scale = "row", clustering_distance_rows = "correlation", cutree_cols = 2, fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "8 h", cluster_cols = FALSE, gaps_col = c(3))
 
 pdf("heatmap8.pdf")
 print(hea8)
@@ -854,7 +854,7 @@ EnhancedVolcano(res_table24,lab = rownames(res_table24),x = 'log2FoldChange',y =
 
 ```{r}
 
-hea24=pheatmap(norm_sig24, scale = "row", clustering_distance_rows = "correlation", cutree_cols = 2, fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "0 h", cluster_cols = FALSE, gaps_col = c(3))
+hea24=pheatmap(norm_sig24, scale = "row", clustering_distance_rows = "correlation", cutree_cols = 2, fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "24 h", cluster_cols = FALSE, gaps_col = c(3))
 
 
 pdf("heatmap24.pdf", height = 27)
