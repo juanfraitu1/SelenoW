@@ -203,7 +203,7 @@ gse <- gseGO(gene = kegg_gene_list,
                 OrgDb = org.Mm.eg.db, 
                 ont = "ALL",     pAdjustMethod = "BH",)
 
-gsea=dotplot(gse, showCategory=10)
+gsea=dotplot(gse, showCategory=30)
 
 gseap=gseaplot(gse, by = "all", title = gse$Description[35], geneSetID = 35)
 
