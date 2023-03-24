@@ -47,7 +47,7 @@ timee=c(rep("0",3),rep("4",3),rep("8",3),rep("24",3),rep("0",3),rep("4",3),rep("
 colData=as_tibble(cbind(colnames(countData),treatment,timee))
 colData$group=str_c(treatment,timee)
 colnames(colData)[1]="samplename"
-dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~timee+treatment)
+dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~treatment+timee)
 dds=DESeq(dds)
 dds =dds[rowSums(counts(dds))>50,]
 sizeFactors(dds)
@@ -97,7 +97,7 @@ dev.off()
 
 
 ```{r}
-phea=pheatmap(norm_sig, scale = "row", clustering_distance_rows = "correlation", fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "All times", cluster_rows = TRUE)
+phea=pheatmap(norm_sig, scale = "row", clustering_distance_rows = "correlation", fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "All times", cluster_cols = TRUE)
 
 
 
