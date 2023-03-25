@@ -132,7 +132,7 @@ pdf("heatmap.pdf", height = 27)
 print(phea)
 dev.off()
 ```
-v
+
 
 ```{r error=TRUE}
 
