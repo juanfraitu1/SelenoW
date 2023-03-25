@@ -80,6 +80,12 @@ summ=reduce(both, bind_rows)
 write.csv(summ, "summary_up_down.csv")
 
 
+
+write.csv(res_table_tb,"all_DGE_and_stats.csv")
+
+write.csv(res_table_tb$gene, "all_DGE_list.csv")
+
+
 normalized_counts_c=counts(dds, normalized=TRUE)
 
 
