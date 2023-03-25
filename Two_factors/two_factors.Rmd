@@ -47,7 +47,7 @@ timee=c(rep("0",3),rep("4",3),rep("8",3),rep("24",3),rep("0",3),rep("4",3),rep("
 colData=as_tibble(cbind(colnames(countData),treatment,timee))
 colData$group=str_c(treatment,timee)
 colnames(colData)[1]="samplename"
-dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~treatment+timee)
+dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~group)
 dds=DESeq(dds)
 dds =dds[rowSums(counts(dds))>50,]
 sizeFactors(dds)
@@ -55,7 +55,7 @@ rld=vst(dds)
 pca=plotPCA(rld, intgroup=c("treatment","timee"))
 
 
-res_table=results(dds)
+res_table=results(dds, contrast=list("group_KO24_vs_KO0","group_KO4_vs_KO0","group_KO8_vs_KO0","group_WT0_vs_KO0","group_WT24_vs_KO0","group_WT4_vs_KO0","group_WT8_vs_KO0"))
 
 normalized_counts=counts(dds, normalized=TRUE)
 
@@ -167,7 +167,7 @@ go <- enrichGO(gene = sig_genes,
                 universe = all_genes,
                 keyType = "ENTREZID",
                 OrgDb = org.Mm.eg.db, 
-                ont = "ALL", 
+                ont = "BP", 
                 pAdjustMethod = "BH", 
                 qvalueCutoff = 0.05, 
                 readable = TRUE)
@@ -211,7 +211,7 @@ kegg_gene_list = sort(kegg_gene_list, decreasing = TRUE)
 gse <- gseGO(gene = kegg_gene_list, 
                 keyType = "ENTREZID",
                 OrgDb = org.Mm.eg.db, 
-                ont = "ALL",     pAdjustMethod = "BH",)
+                ont = "BP",     pAdjustMethod = "BH",)
 
 gsea=dotplot(gse, showCategory=50)
 
