@@ -3,6 +3,7 @@ title: "Two_factors"
 output:
   pdf_document: default
   html_document: default
+  always_allow_html: true
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)

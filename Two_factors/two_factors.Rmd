@@ -2,7 +2,7 @@
 title: "Two_factors"
 output:
   pdf_document: default
-  html_document: default
+ 
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -55,7 +55,7 @@ rld=vst(dds)
 pca=plotPCA(rld, intgroup=c("treatment","timee"))
 
 
-res_table=results(dds, contrast=list("group_KO24_vs_KO0","group_KO4_vs_KO0","group_KO8_vs_KO0","group_WT0_vs_KO0","group_WT24_vs_KO0","group_WT4_vs_KO0","group_WT8_vs_KO0"))
+res_table=results(dds, contrast=list(c("group_KO24_vs_KO0","group_KO4_vs_KO0","group_KO8_vs_KO0","group_WT0_vs_KO0","group_WT24_vs_KO0","group_WT4_vs_KO0","group_WT8_vs_KO0")))
 
 normalized_counts=counts(dds, normalized=TRUE)
 
@@ -170,7 +170,7 @@ go <- enrichGO(gene = sig_genes,
                 ont = "BP", 
                 pAdjustMethod = "BH", 
                 qvalueCutoff = 0.05, 
-                readable = TRUE)
+                readable = TRUE,)
 
 
 
@@ -181,7 +181,7 @@ go_dp=dotplot(go, showCategory=60)
 
 
 
-netplot=cnetplot(go, foldchange=all_foldchanges)
+netplot=cnetplot(go, foldchange=all_foldchanges,)
 
 
 ids<-bitr(rownames(norm_sig), fromType = "SYMBOL", toType = "ENTREZID", OrgDb=org.Mm.eg.db)
@@ -216,7 +216,7 @@ gse <- gseGO(gene = kegg_gene_list,
 gsea=dotplot(gse, showCategory=50)
 
 
-a=lapply(1:30, function(i) {gseaplot(gse, by = "all", title = gse$Description[i], geneSetID = i)})
+a=lapply(1:length(gse$Description), function(i) {gseaplot(gse, by = "all", title = gse$Description[i], geneSetID = i)})
 
 
 
@@ -239,23 +239,23 @@ pathwayss <- lapply(1:10, function(x) {
 
 
 
-pdf("GO_dotplot.pdf", height=13)
+pdf("GO_dotplot.pdf", width=10, height=33)
 print(go_dp)
 dev.off()
 
 
 
-pdf("gsea_dotplot.pdf")
+pdf("gsea_dotplot.pdf", width=10, height=33)
 print(gsea)
 dev.off()
 
 
-pdf("kegg_dotplot.pdf", width=10, height=30)
+pdf("kegg_dotplot.pdf", width=10, height=35)
 print(kegg)
 dev.off()
 
 
-pdf("network.pdf",width = 10)
+pdf("network.pdf", width=27, height=20)
 print(netplot)
 dev.off()
 
