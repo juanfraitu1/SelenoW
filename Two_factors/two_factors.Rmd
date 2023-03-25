@@ -117,17 +117,22 @@ rownames(norm_sig[phea$tree_row[["order"]],])
 
 a=sort(cutree(phea$tree_row, k=2))
 
-WT_only=names(a[a==1])
-write.csv(WT_only,"WT_only.csv")
 
-KO_only=names(a[a==2])
-write.csv(KO_only,"KO_only.csv")
+write.csv(names(a[a==1]),"WT_only.csv")
+
+
+write.csv(names(a[a==2]),"KO_only.csv")
+
+
+#to not make a mega unentelligible heatmap, I decided to take a random sample of 300 genes, this preserves the natural clustering and avoids biases
+phea=pheatmap(slice_sample(norm_sig,n = 300), scale = "row", clustering_distance_rows = "correlation", fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "All times", cluster_cols = TRUE)
+
 
 pdf("heatmap.pdf", height = 27)
 print(phea)
 dev.off()
 ```
-
+v
 
 ```{r error=TRUE}
 
