@@ -1,0 +1,50 @@
+---
+title: "Metabolomics"
+output: pdf_document
+date: "2023-03-26"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Using: An introduction to the metabolomicsR
+
+https://xikunhan.github.io/metabolomicsR/docs/articles/Introduction.html
+
+
+remotes::install_github("XikunHan/metabolomicsR")
+
+```{r}
+
+
+# Package names
+packages <- c("ggstatsplot","hrbrthemes")
+
+# Install packages not yet installed
+installed_packages <- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  BiocManager::install(packages[!installed_packages])
+}
+
+# Packages loading
+invisible(lapply(packages, library, character.only = TRUE))
+```
+
+
+
+```{r}
+
+A=load_excel("Transposed.xlsx", data_sheet = 1, feature_sheet=2, sample_sheet = 3, sampleID = "samplename",featureID = "BIOCHEMICAL")
+
+
+
+p=plot_Metabolite(A, plot="boxplot", x="Genotype", color="Time")
+            
+             
+pdf("some_metabolites.pdf")
+print(p)
+dev.off()
+         
+
+```
