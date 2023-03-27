@@ -35,6 +35,8 @@ invisible(lapply(packages, library, character.only = TRUE))
 ```{r}
 
 
+
+
 countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
 countData=aggregate(. ~gene_id , data = countData, sum)
@@ -67,7 +69,7 @@ res_table_tb <- res_table %>%
   as_tibble()
 
 
-sig <- res_table_tb[which(res_table_tb[,7]<0.05 & abs(res_table_tb[,3])>1.5),]
+sig <- res_table_tb[which(res_table_tb[,7]<0.05 & abs(res_table_tb[,3])>3),]
 
 up_sig=as.tibble(head(sig, 50))
 
