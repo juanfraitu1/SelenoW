@@ -35,8 +35,6 @@ invisible(lapply(packages, library, character.only = TRUE))
 ```{r}
 
 
-
-
 countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
 countData=aggregate(. ~gene_id , data = countData, sum)
@@ -71,13 +69,11 @@ res_table_tb <- res_table %>%
 
 sig <- res_table_tb[which(res_table_tb[,7]<0.05 & abs(res_table_tb[,3])>3),]
 
-up_sig=as.tibble(head(sig, 50))
 
-down_sig=as.tibble(tail(sig,50))
 
-both=list(up_sig, down_sig)
 
-summ=reduce(both, bind_rows)
+
+
 
 write.csv(summ, "summary_up_down.csv")
 
@@ -115,7 +111,42 @@ dev.off()
 
 
 ```{r}
-phea=pheatmap(norm_sig, scale = "row", clustering_distance_rows = "correlation", fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "All times", cluster_cols = TRUE)
+
+#Remove unannotated genes ending in RIK
+sig_red=sig[grep("*Rik", sig$gene, invert=TRUE),]
+
+
+#Remove unnanotated genes starting with Gm
+sig_red=sig_red[grep("Gm*", sig$gene, invert=TRUE),]
+
+
+sig_red=arrange(sig_red, desc(log2FoldChange))
+
+sig_red=na.omit(sig_red)
+
+top=head(sig_red,50)
+
+bottom=tail(sig_red,50)
+
+hundred_genes=full_join(top, bottom)
+
+
+hun_norm_sig_red <- normalized_counts_c[,] %>% 
+              dplyr::filter(normalized_counts_c$gene %in% hundred_genes$gene) %>%
+	           data.frame() %>%
+	           column_to_rownames(var = "gene") 
+
+
+
+norm_sig_red <- normalized_counts_c[,] %>% 
+              dplyr::filter(normalized_counts_c$gene %in% sig_red$gene) %>%
+	           data.frame() %>%
+	           column_to_rownames(var = "gene") 
+
+
+#Option 1
+#Heatmap with all genes, useful to see all genes
+phea=pheatmap(norm_sig_red, scale = "row", clustering_distance_rows = "correlation", fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "All times", cluster_cols = TRUE)
 
 
 
@@ -131,14 +162,25 @@ write.csv(names(a[a==1]),"WT_only.csv")
 
 write.csv(names(a[a==2]),"KO_only.csv")
 
+#Option 2
+#random sample of 300 genes, this preserves the natural clustering and avoids biases
+phea_ran=pheatmap(slice_sample(norm_sig,n = 300), scale = "row", clustering_distance_rows = "correlation", fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "All times", cluster_cols = TRUE)
 
-#to not make a mega unentelligible heatmap, I decided to take a random sample of 300 genes, this preserves the natural clustering and avoids biases
-phea=pheatmap(slice_sample(norm_sig,n = 300), scale = "row", clustering_distance_rows = "correlation", fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "All times", cluster_cols = TRUE)
 
-
-pdf("heatmap.pdf", height = 27)
-print(phea)
+pdf("random_heatmap.pdf", height = 27)
+print(phea_ran)
 dev.off()
+
+
+
+#Option 2
+
+hun_phea=pheatmap(hun_norm_sig_red, scale = "row", clustering_distance_rows = "correlation", fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "All times", cluster_cols = TRUE)
+
+pdf("top_bottom_50_heatmap.pdf")
+print(hun_phea)
+dev.off()
+
 ```
 
 
