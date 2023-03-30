@@ -55,10 +55,14 @@ rld=vst(dds)
 pca=plotPCA(rld, intgroup=c("treatment","timee"))
 
 
+resultsNames(dds)
+
+dispest=plotDispEsts(dds)
+
+
 res_table=results(dds, contrast=list(c("group_KO24_vs_KO0","group_KO4_vs_KO0","group_KO8_vs_KO0","group_WT0_vs_KO0","group_WT24_vs_KO0","group_WT4_vs_KO0","group_WT8_vs_KO0")))
 
 normalized_counts=counts(dds, normalized=TRUE)
-
 
 
 res_table_tb <- res_table %>%
@@ -72,10 +76,6 @@ sig <- res_table_tb[which(res_table_tb[,7]<0.05 & abs(res_table_tb[,3])>3),]
 
 
 
-
-
-
-write.csv(summ, "summary_up_down.csv")
 
 
 
@@ -104,6 +104,11 @@ norm_sig <- normalized_counts_c[,] %>%
 
 pdf("PCA.pdf")
 print(pca)
+dev.off()
+
+
+pdf("dispest.pdf")
+print(disp_est)
 dev.off()
 
 ```
