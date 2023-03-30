@@ -41,25 +41,17 @@ countData=aggregate(. ~gene_id , data = countData, sum)
 countData=column_to_rownames(countData,'gene_id')
 treatment=c("WT","WT","WT","WT","WT","WT","WT","WT","WT","WT","WT","WT","KO","KO","KO","KO","KO","KO","KO","KO","KO","KO","KO")
 timee=c(rep("0",3),rep("4",3),rep("8",3),rep("24",3),rep("0",3),rep("4",3),rep("8",3),rep("24",2))
-#colData=as_tibble(cbind(colnames(countData),time,treatment))
-
-
 colData=as_tibble(cbind(colnames(countData),as.factor(treatment),as.factor(timee)))
 colData$group=as.factor(str_c(treatment,timee))
 colData$group=relevel(colData$group, ref = "WT0")
 colnames(colData)[1]="samplename"
 dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~group)
-
 dds=DESeq(dds)
 dds =dds[rowSums(counts(dds))>50,]
 sizeFactors(dds)
 rld=vst(dds)
 pca=plotPCA(rld, intgroup=c("group"))
-
-
 resultsNames(dds)
-
-
 res_table=results(dds, contrast=list(c("group_KO0_vs_WT0",  "group_KO24_vs_WT0", "group_KO4_vs_WT0"  ,"group_KO8_vs_WT0" , "group_WT24_vs_WT0", "group_WT4_vs_WT0",  "group_WT8_vs_WT0")))
 
 normalized_counts=counts(dds, normalized=TRUE)
@@ -160,9 +152,6 @@ print(phea)
 dev.off()
 
 
-rownames(norm_sig[phea$tree_row[["order"]],])
-
-
 a=sort(cutree(phea$tree_row, k=2))
 
 
@@ -231,7 +220,7 @@ go <- enrichGO(gene = sig_genes,
                 universe = all_genes,
                 keyType = "ENTREZID",
                 OrgDb = org.Mm.eg.db, 
-                ont = "BP", 
+                ont = "ALL", 
                 pAdjustMethod = "BH", 
                 qvalueCutoff = 0.05, 
                 readable = TRUE,maxGSSize = 250)
@@ -322,10 +311,6 @@ pdf("network.pdf", width=27, height=20)
 print(netplot)
 dev.off()
 
-
-pdf("pathview.pdf", width=27, height=20)
-print(a)
-dev.off()
 
 
 

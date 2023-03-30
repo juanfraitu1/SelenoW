@@ -57,7 +57,7 @@ res_table0=lfcShrink(dds, coef=2)
 #res_table0=results(dds, contrast = c("treatment", "WT", "KO"))
 
 padj.cutoff <- 0.05
-lfc.cutoff <- 1.5
+lfc.cutoff <- 3
 
 normalized_counts0=counts(dds, normalized=TRUE)
 
@@ -94,7 +94,8 @@ res_table0_tb <- res_table0 %>%
 
 
 
-sig0 <- res_table0_tb[which(res_table0_tb[,6]<0.05),]
+sig0 <- res_table0_tb[which(res_table0_tb[,6]<0.05 & abs(res_table0_tb[,3])>3),]
+
 
 
 normalized_counts_c0=counts(dds, normalized=TRUE)
@@ -364,7 +365,7 @@ res_table4=lfcShrink(dds, coef=2)
 #res_table4=results(dds, contrast = c("treatment", "WT", "KO"))
 
 padj.cutoff <- 0.05
-lfc.cutoff <- 2
+lfc.cutoff <- 3
 
 normalized_counts4=counts(dds, normalized=TRUE)
 
@@ -401,8 +402,8 @@ res_table4_tb <- res_table4 %>%
 
 
 
-sig4 <- res_table4_tb %>%
-        dplyr::filter(padj < padj.cutoff & abs(log2FoldChange) > lfc.cutoff)
+sig4 <- res_table4_tb[which(res_table4_tb[,6]<0.05 & abs(res_table4_tb[,3])>3),]
+
 
 
 
@@ -583,7 +584,7 @@ res_table8=lfcShrink(dds, coef=2)
 #res_table8=results(dds, contrast = c("treatment", "WT", "KO"))
 
 padj.cutoff <- 0.05
-lfc.cutoff <- 2
+lfc.cutoff <- 3
 
 normalized_counts8=counts(dds, normalized=TRUE)
 
@@ -620,8 +621,7 @@ res_table8_tb <- res_table8 %>%
 
 
 
-sig8 <- res_table8_tb %>%
-        dplyr::filter(padj < padj.cutoff & abs(log2FoldChange) > lfc.cutoff)
+sig8 <- res_table8_tb[which(res_table8_tb[,6]<0.05 & abs(res_table8_tb[,3])>3),]
 
 
 
@@ -805,7 +805,7 @@ res_table24=lfcShrink(dds, coef=2)
 #res_table24=results(dds, contrast = c("treatment", "WT", "KO"))
 
 padj.cutoff <- 0.05
-lfc.cutoff <- 2
+lfc.cutoff <- 3
 
 normalized_counts24=counts(dds, normalized=TRUE)
 
@@ -842,8 +842,8 @@ res_table24_tb <- res_table24 %>%
 
 
 
-sig24 <- res_table24_tb %>%
-        dplyr::filter(padj < padj.cutoff & abs(log2FoldChange) > lfc.cutoff)
+sig24 <- res_table24_tb[which(res_table24_tb[,6]<0.05 & abs(res_table24_tb[,3])>3),]
+
 
 
 
