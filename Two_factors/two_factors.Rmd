@@ -44,23 +44,23 @@ timee=c(rep("0",3),rep("4",3),rep("8",3),rep("24",3),rep("0",3),rep("4",3),rep("
 #colData=as_tibble(cbind(colnames(countData),time,treatment))
 
 
-colData=as_tibble(cbind(colnames(countData),treatment,timee))
-colData$group=str_c(treatment,timee)
+colData=as_tibble(cbind(colnames(countData),as.factor(treatment),as.factor(timee)))
+colData$group=as.factor(str_c(treatment,timee))
+colData$group=relevel(colData$group, ref = "WT0")
 colnames(colData)[1]="samplename"
 dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~group)
+
 dds=DESeq(dds)
 dds =dds[rowSums(counts(dds))>50,]
 sizeFactors(dds)
 rld=vst(dds)
-pca=plotPCA(rld, intgroup=c("treatment","timee"))
+pca=plotPCA(rld, intgroup=c("group"))
 
 
 resultsNames(dds)
 
-dispest=plotDispEsts(dds)
 
-
-res_table=results(dds, contrast=list(c("group_KO24_vs_KO0","group_KO4_vs_KO0","group_KO8_vs_KO0","group_WT0_vs_KO0","group_WT24_vs_KO0","group_WT4_vs_KO0","group_WT8_vs_KO0")))
+res_table=results(dds, contrast=list(c("group_KO0_vs_WT0",  "group_KO24_vs_WT0", "group_KO4_vs_WT0"  ,"group_KO8_vs_WT0" , "group_WT24_vs_WT0", "group_WT4_vs_WT0",  "group_WT8_vs_WT0")))
 
 normalized_counts=counts(dds, normalized=TRUE)
 
@@ -108,7 +108,7 @@ dev.off()
 
 
 pdf("dispest.pdf")
-print(disp_est)
+print(plotDispEsts(dds))
 dev.off()
 
 ```
@@ -124,6 +124,8 @@ sig_red=sig[grep("*Rik", sig$gene, invert=TRUE),]
 #Remove unnanotated genes starting with Gm
 sig_red=sig_red[grep("Gm*", sig$gene, invert=TRUE),]
 
+
+write.csv(sig_red$gene,"sig_red.csv")
 
 sig_red=arrange(sig_red, desc(log2FoldChange))
 
@@ -153,7 +155,9 @@ norm_sig_red <- normalized_counts_c[,] %>%
 #Heatmap with all genes, useful to see all genes
 phea=pheatmap(norm_sig_red, scale = "row", clustering_distance_rows = "correlation", fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "All times", cluster_cols = TRUE)
 
-
+pdf("heatmap.pdf", height = 27)
+print(phea)
+dev.off()
 
 
 rownames(norm_sig[phea$tree_row[["order"]],])
@@ -230,7 +234,7 @@ go <- enrichGO(gene = sig_genes,
                 ont = "BP", 
                 pAdjustMethod = "BH", 
                 qvalueCutoff = 0.05, 
-                readable = TRUE,)
+                readable = TRUE,maxGSSize = 250)
 
 
 
@@ -241,7 +245,7 @@ go_dp=dotplot(go, showCategory=60)
 
 
 
-netplot=cnetplot(go, foldchange=all_foldchanges,)
+netplot=cnetplot(go, foldchange=all_foldchanges,fixed=F)
 
 
 ids<-bitr(rownames(norm_sig), fromType = "SYMBOL", toType = "ENTREZID", OrgDb=org.Mm.eg.db)
@@ -271,17 +275,17 @@ kegg_gene_list = sort(kegg_gene_list, decreasing = TRUE)
 gse <- gseGO(gene = kegg_gene_list, 
                 keyType = "ENTREZID",
                 OrgDb = org.Mm.eg.db, 
-                ont = "BP",     pAdjustMethod = "BH",)
+                ont = "BP",     pAdjustMethod = "BH",eps = 0)
 
 gsea=dotplot(gse, showCategory=50)
 
 
-a=lapply(1:length(gse$Description), function(i) {gseaplot(gse, by = "all", title = gse$Description[i], geneSetID = i)})
+lapply(1:length(gse$Description), function(i) {gseaplot(gse, by = "all", title = gse$Description[i], geneSetID = i)})
 
 
 
 pdf("gseas.pdf",width = 10)
-print(a)
+print(lapply(1:length(gse$Description), function(i) {gseaplot(gse, by = "all", title = gse$Description[i], geneSetID = i)}))
 dev.off()
 
 
@@ -292,10 +296,9 @@ kgg <- gseKEGG(geneList= kegg_gene_list, organism= "mmu", minGSSize    = 3,maxGS
 kegg=dotplot(kgg, showCategory=80)
 
 
-pathwayss <- lapply(1:10, function(x) {
-   pathview(gene.data = foldchanges, pathway.id = kgg$ID[x], species = "mmu")
-})
 
+a=lapply(1:10, function(x) {
+   pathview(gene.data = foldchanges, pathway.id = kgg$ID[x], species = "mmu")})
 
 
 
@@ -320,7 +323,9 @@ print(netplot)
 dev.off()
 
 
-
+pdf("pathview.pdf", width=27, height=20)
+print(a)
+dev.off()
 
 
 
@@ -417,7 +422,7 @@ fgseaResTidy %>%
 
 
 fgsearesgraph=ggplot(fgseaResTidy, aes(reorder(pathway, NES), NES)) +
-  geom_col(aes(fill=padj<0.05)) +
+  geom_col(color=fgseaResTidy$NES>0) +
   coord_flip() +
   labs(x="Pathway", y="Normalized Enrichment Score",
        title="Hallmark pathways NES from GSEA") + 
