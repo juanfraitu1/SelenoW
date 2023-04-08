@@ -15,7 +15,7 @@ knitr::opts_current$set(cache = TRUE, warning = FALSE,message = FALSE, cache.laz
 
 ```{r, message=FALSE}
 # Package names
-packages <- c("ggrepel", "pheatmap", "DOSE", "clusterProfiler", "ensembldb", "annotables", "apeglm", "RColorBrewer", "vsn", "DESeq2", "ggplot2", "reshape2", "gage", "gageData", "AnnotationDbi", "tidyr", "dplyr", "org.Mm.eg.db", "gplots", "GO.db", "GOstats", "AnnotationHub", "pathview", "plyr", "tidyverse", "purrr", "GSEABase", "igraph", "vissE", "patchwork", "msigdb", "tibble", "msigdbr","fgsea", "GEOquery","EnhancedVolcano","ggvenn","readxl","msigdbr","Biobase")
+packages <- c("ggrepel", "pheatmap", "DOSE", "clusterProfiler", "ensembldb", "annotables", "apeglm", "RColorBrewer", "vsn", "DESeq2", "ggplot2", "reshape2", "gage", "gageData", "AnnotationDbi", "tidyr", "dplyr", "org.Mm.eg.db", "gplots", "GO.db", "GOstats", "AnnotationHub", "pathview", "plyr", "tidyverse", "purrr", "GSEABase", "igraph", "vissE", "patchwork", "msigdb", "tibble", "msigdbr","fgsea", "GEOquery","EnhancedVolcano","ggvenn","readxl","msigdbr","Biobase","DEGreport")
 
 # Install packages not yet installed
 installed_packages <- packages %in% rownames(installed.packages())
@@ -41,18 +41,18 @@ countData=aggregate(. ~gene_id , data = countData, sum)
 countData=column_to_rownames(countData,'gene_id')
 treatment=c("WT","WT","WT","WT","WT","WT","WT","WT","WT","WT","WT","WT","KO","KO","KO","KO","KO","KO","KO","KO","KO","KO","KO")
 timee=c(rep("0",3),rep("4",3),rep("8",3),rep("24",3),rep("0",3),rep("4",3),rep("8",3),rep("24",2))
-colData=as_tibble(cbind(colnames(countData),as.factor(treatment),as.factor(timee)))
-colData$group=as.factor(str_c(treatment,timee))
-colData$group=relevel(colData$group, ref = "WT0")
-colnames(colData)[1]="samplename"
-dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~group)
+colData=as_tibble(cbind(colnames(countData),factor(treatment,levels = c("WT","KO")),factor(timee,levels=c("0","4","8","24"))))
+#colData$group=as.factor(str_c(treatment,timee))
+#colData$group=relevel(colData$group, ref = "WT0")
+colnames(colData)=c("samplename","treatment","timee")
+dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~timee+treatment+treatment:timee)
 dds=DESeq(dds)
-dds =dds[rowSums(counts(dds))>50,]
+dds =dds[rowSums(counts(dds))>5,]
 sizeFactors(dds)
 rld=vst(dds)
-pca=plotPCA(rld, intgroup=c("group"))
+#pca=plotPCA(rld, intgroup=c("group"))
 resultsNames(dds)
-res_table=results(dds, contrast=list(c("group_KO0_vs_WT0",  "group_KO24_vs_WT0", "group_KO4_vs_WT0"  ,"group_KO8_vs_WT0" , "group_WT24_vs_WT0", "group_WT4_vs_WT0",  "group_WT8_vs_WT0")))
+res_table=results(dds, contrast=list(c("timee_2_vs_1","timee_3_vs_1"    ,"timee_4_vs_1","treatment_2_vs_1","timee2.treatment2","timee3.treatment2","timee4.treatment2")))
 
 normalized_counts=counts(dds, normalized=TRUE)
 
@@ -63,7 +63,7 @@ res_table_tb <- res_table %>%
   as_tibble()
 
 
-sig <- res_table_tb[which(res_table_tb[,7]<0.05 & abs(res_table_tb[,3])>3),]
+sig <- res_table_tb[which(res_table_tb[,7]<0.05 & abs(res_table_tb[,3])>0),]
 
 
 
@@ -108,6 +108,11 @@ dev.off()
 
 
 ```{r}
+
+
+order=c("WT0_1","WT0_2","WT0_3","KO0_1","KO0_2","KO0_3","WT4_1","WT4_2","WT4_3","KO4_1","KO4_2","KO4_3","WT8_1","WT8_2","WT8_3","KO8_1","KO8_2","KO8_3","WT24_1","WT24_2","WT24_3","KO24_1","KO24_2")
+
+
 
 #Remove unannotated genes ending in RIK
 sig_red=sig[grep("*Rik", sig$gene, invert=TRUE),]
@@ -173,7 +178,9 @@ dev.off()
 
 #Option 2
 
-hun_phea=pheatmap(hun_norm_sig_red, scale = "row", clustering_distance_rows = "correlation", fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "All times", cluster_cols = TRUE)
+hun_norm_sig_red_or=hun_norm_sig_red[,order]
+
+hun_phea=pheatmap(hun_norm_sig_red_or, scale = "row", clustering_distance_rows = "correlation", fontsize = 3, color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255), cellwidth = 12.0, main = "All times", cluster_cols = TRUE)
 
 pdf("top_bottom_50_heatmap.pdf")
 print(hun_phea)
@@ -183,6 +190,7 @@ dev.off()
 
 
 ```{r error=TRUE}
+
 
 idx = grcm38$symbol %in% rownames(res_table)
 
@@ -197,6 +205,8 @@ res_ids <- inner_join(res_table_tb, ids, by=c("gene"="symbol"))
 all_genes <- as.character(res_ids$entrez)
 
 sig <- dplyr::filter(res_ids, padj < 0.05)
+
+
 
 sig_genes <- as.character(sig$entrez)
 
@@ -220,7 +230,7 @@ go <- enrichGO(gene = sig_genes,
                 universe = all_genes,
                 keyType = "ENTREZID",
                 OrgDb = org.Mm.eg.db, 
-                ont = "ALL", 
+                ont = "BP", 
                 pAdjustMethod = "BH", 
                 qvalueCutoff = 0.05, 
                 readable = TRUE,maxGSSize = 250)
@@ -231,6 +241,60 @@ go <- enrichGO(gene = sig_genes,
 
 
 go_dp=dotplot(go, showCategory=60)
+
+
+up=sig[sig[,3]>0,]
+
+
+down=sig[sig[,3]<0,]
+
+up_entrez <- as.character(up$entrez)
+
+down_entrez =  as.character(down$entrez)
+
+upg=res_entrez[res_entrez$entrez %in% up_entrez,]
+
+up_genes=upg$log2FoldChange
+names(up_genes) <- upg$entrez
+up_genes <- sort(up_genes, decreasing = TRUE)
+
+downg=res_entrez[res_entrez$entrez %in% down_entrez,]
+
+down_genes=downg$log2FoldChange
+
+names(down_genes) <- downg$entrez
+
+down_genes <- sort(down_genes, decreasing = TRUE)
+
+
+
+
+go_up <- enrichGO(gene = up_entrez, 
+                universe = all_genes,
+                keyType = "ENTREZID",
+                OrgDb = org.Mm.eg.db, 
+                ont = "BP", 
+                pAdjustMethod = "BH", 
+                qvalueCutoff = 0.05, 
+                readable = TRUE,)
+
+
+
+
+
+go_down <- enrichGO(gene = down_entrez, 
+                universe = all_genes,
+                keyType = "ENTREZID",
+                OrgDb = org.Mm.eg.db, 
+                ont = "BP", 
+                pAdjustMethod = "BH", 
+                qvalueCutoff = 0.05, 
+                readable = TRUE)
+
+
+
+
+
 
 
 
@@ -266,23 +330,28 @@ gse <- gseGO(gene = kegg_gene_list,
                 OrgDb = org.Mm.eg.db, 
                 ont = "BP",     pAdjustMethod = "BH",eps = 0)
 
-gsea=dotplot(gse, showCategory=50)
+gsea=dotplot(gse, showCategory=50, split=".sign") + facet_grid(.~.sign)
 
-
-lapply(1:length(gse$Description), function(i) {gseaplot(gse, by = "all", title = gse$Description[i], geneSetID = i)})
-
-
-
-pdf("gseas.pdf",width = 10)
-print(lapply(1:length(gse$Description), function(i) {gseaplot(gse, by = "all", title = gse$Description[i], geneSetID = i)}))
-dev.off()
-
-
-kgg <- gseKEGG(geneList= kegg_gene_list, organism= "mmu", minGSSize    = 3,maxGSSize    = 1800, pvalueCutoff = 0.05,pAdjustMethod = "none",keyType= "kegg")
+gsea1=dotplot(gse, showCategory=25, split=".sign", x="NES", decreasing = TRUE)
 
 
 
-kegg=dotplot(kgg, showCategory=80)
+#lapply(1:length(gse$Description), function(i) {gseaplot(gse, by = "all", title = gse$Description[i], geneSetID = i)})
+
+
+
+#pdf("gseas.pdf",width = 10)
+#print(lapply(1:length(gse$Description), function(i) {gseaplot(gse, by = "all", title = gse$Description[i], geneSetID = i)}))
+#dev.off()
+
+
+kgg <- gseKEGG(geneList= kegg_gene_list, organism= "mmu", minGSSize    = 3,maxGSSize    = 1800, pvalueCutoff = 0.05,pAdjustMethod = "none",by = fgsea)
+
+
+
+kegg=dotplot(kgg , showCategory=25, split=".sign", x="NES", decreasing = TRUE)
+
+
 
 
 
@@ -449,6 +518,10 @@ dev.off()
 pdf("fgsearesgraph.pdf",width = 10)
 print(fgsearesgraph)
 dev.off()
+
+
+
+
 
 
 
