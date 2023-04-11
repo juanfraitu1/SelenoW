@@ -41,15 +41,15 @@ countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
 countData=aggregate(. ~gene_id , data = countData, sum)
 countData=column_to_rownames(countData,'gene_id')
-treatment=c("WT","WT","WT","KO","KO","KO","WT","WT","WT","KO","KO","KO","WT","WT","WT","KO","KO","KO","WT","WT","WT","KO","KO")
-timee=c(rep("0",6),rep("4",6),rep("8",6),rep("24",5))
-colData=as_tibble(cbind(colnames(countData),factor(treatment,levels=c("KO","WT"),ordered = FALSE),factor(timee,levels = c("0","4","8","24"))))
+treatment=c(rep("WT",12),rep("KO",11))
+timee=c(rep("0",3),rep("4",3),rep("8",3),rep("24",3),rep("0",3),rep("4",3),rep("8",3),rep("24",2))
+colData=as_tibble(cbind(colnames(countData),factor(treatment,levels=c("KO","WT")),factor(timee,levels = c("0","4","8","24"))))
 
 
 
 colnames(colData)=c("samplename","treatment","timee")
-dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~timee+treatment+treatment:timee)
-dds=DESeq(dds, test = "LRT", reduced=~timee+treatment)
+dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~timee+treatment)
+dds=DESeq(dds)
 dds =dds[rowSums(counts(dds))>5,]
 sizeFactors(dds)
 rld=vst(dds)
