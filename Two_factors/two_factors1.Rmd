@@ -11,13 +11,13 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 "false"<=FALSE
 "true"<=TRUE
- source("~/Documents/Synced/SelenoW/SelenoW/Two_factors/base.R")
+
 
 ```
 
 ```{r, message=FALSE}
 # Package names
-packages <- c("ggrepel", "pheatmap", "DOSE", "clusterProfiler", "ensembldb", "annotables", "apeglm", "RColorBrewer", "vsn", "DESeq2", "ggplot2", "reshape2", "gage", "gageData", "AnnotationDbi", "tidyr", "dplyr", "org.Mm.eg.db", "gplots", "GO.db", "GOstats", "AnnotationHub", "pathview", "plyr", "tidyverse", "purrr", "GSEABase", "igraph", "vissE", "patchwork", "msigdb", "tibble", "msigdbr","fgsea", "GEOquery","EnhancedVolcano","ggvenn","readxl","msigdbr","Biobase","DEGreport","viridis")
+packages <- c("ggrepel", "pheatmap", "DOSE", "clusterProfiler", "ensembldb", "annotables", "apeglm", "RColorBrewer", "vsn", "DESeq2", "ggplot2", "reshape2", "gage", "gageData", "AnnotationDbi", "tidyr", "dplyr", "org.Mm.eg.db", "gplots", "GO.db", "GOstats", "AnnotationHub", "pathview", "plyr", "tidyverse", "purrr", "GSEABase", "igraph", "vissE", "patchwork", "msigdb", "tibble", "msigdbr","fgsea", "GEOquery","EnhancedVolcano","ggvenn","readxl","msigdbr","Biobase","DEGreport","viridis","ReactomePA")
 
 # Install packages not yet installed
 installed_packages <- packages %in% rownames(installed.packages())
@@ -48,16 +48,12 @@ sig_red=sig_red[grep("Gm*", sig$gene, invert=TRUE),]
 }
 
 
-norm_sig <- function(nc, vec){
+norm_sig <- function(nc, vec, order){
     require(tibble)
   require(dplyr)
 nor=dplyr::filter(nc,nc$gene %in% vec$gene)
 nor=data.frame(nor) 
 nor=column_to_rownames(nor,var = "gene") 
-
-order=c("WT0_1","WT0_2","WT0_3","KO0_1","KO0_2","KO0_3","WT4_1","WT4_2","WT4_3","KO4_1","KO4_2","KO4_3","WT8_1","WT8_2","WT8_3","KO8_1","KO8_2","KO8_3","WT24_1","WT24_2","WT24_3","KO24_1","KO24_2")
-
-
 nor=nor[,order]
 return(nor)
 }
@@ -124,6 +120,24 @@ enrichPathway(gene=names(kegg_gene_list),pvalueCutoff=0.05, readable=T,organism 
 
 
 
+topdf=function(file, title){
+pdf(paste(title,".pdf",sep = "",collapse = NULL), width=10, height=33)
+print(file)
+dev.off()
+}
+
+
+hm=function(file,title){
+pheatmap(file, scale = "row", clustering_distance_rows = "correlation", fontsize = 3, color = viridis(255), cellwidth = 12.0, main = title , cluster_cols = TRUE)
+}
+
+
+ev=function(res){
+EnhancedVolcano(res,
+    lab = rownames(res),
+    x = 'log2FoldChange',
+    y = 'qvalue')
+}
 
 
 ```
@@ -143,6 +157,7 @@ distinct()
 ```{r}
 countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
+order=c("WT0_1","WT0_2","WT0_3","KO0_1","KO0_2","KO0_3")
 countData=countData[,c(1:4,14:16)]
 countData=aggregate(. ~gene_id , data = countData, sum)
 countData=column_to_rownames(countData,'gene_id')
@@ -169,34 +184,35 @@ normalized_counts_c <- normalized_counts_c %>%
   data.frame() %>%
   rownames_to_column(var="gene") %>% 
   as_tibble()
+```
 
+```{r}
+res_base=results(dds, test = "Wald")
 
-res_base=results(dds)
+res_base_tb=tabler(res_base)
 
-ko_base_tb=tabler(res_base)
+nko_base=norm_sig(normalized_counts_c,res_base_tb, order)
 
-nko_base=norm_sig(normalized_counts_c,ko_base_tb)
-
-ko_base_genelist=fc2list(nor = nko_base,res = ko_base_tb )
+ko_base_genelist=fc2list(nor = nko_base,res = res_base_tb )
 
 
 
 
 gse_base <- gse(ko_base_genelist)
 
-##dotplot(gse_base)
+##dotplot(gse_base)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
 
 go_base=go(ko_base_genelist)
 
-dotplot(go_base)
+dotplot(go_base)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
 
 kgg_base=kgg(ko_base_genelist)
 
-##dotplot(kgg_base)
+##dotplot(kgg_base)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
 
 reactom_base=reactom(ko_base_genelist)
 
-dotplot(reactom_base)
+dotplot(reactom_base)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
 
 
 
@@ -211,6 +227,7 @@ dotplot(reactom_base)
 ```{r}
 countData <- read_excel("Gene_count_matrix_DEseq2_V4_NOT normalized.xlsx")
 colnames(countData)=c("gene_id","WT0_1","WT0_2","WT0_3","WT4_1","WT4_2","WT4_3","WT8_1","WT8_2","WT8_3","WT24_1","WT24_2","WT24_3","KO0_1","KO0_2","KO0_3","KO4_1","KO4_2","KO4_3","KO8_1","KO8_2","KO8_3","KO24_1","KO24_2")
+order=c("WT0_1","WT0_2","WT0_3","KO0_1","KO0_2","KO0_3","WT4_1","WT4_2","WT4_3","KO4_1","KO4_2","KO4_3","WT8_1","WT8_2","WT8_3","KO8_1","KO8_2","KO8_3","WT24_1","WT24_2","WT24_3","KO24_1","KO24_2")
 countData=aggregate(. ~gene_id , data = countData, sum)
 countData=column_to_rownames(countData,'gene_id')
 genotype=c(rep("WT",12),rep("KO",11))
@@ -247,7 +264,7 @@ normalized_counts_c <- normalized_counts_c %>%
 
 
 
-```{r}
+```{r, width=13, height=15}
 # KO_4h_vs_0h : 4h vs 0h in KO.
 # It compares the expression levels between KO and WT at 4 hours relative to time 0
 # The ko_4h_0h  takes into account the change in gene expression from time 0 to 4 hours for both genotypes
@@ -257,7 +274,7 @@ write.csv(as.data.frame(ko_4h_0h),"KO_time_4h_vs_0h.csv")
 
 ko_4h_0h_tb=tabler(ko_4h_0h)
 
-nko_4h_0h=norm_sig(normalized_counts_c,ko_4h_0h_tb)
+nko_4h_0h=norm_sig(normalized_counts_c,ko_4h_0h_tb,order)
 
 ko_4h_0_genelist=fc2list(nor = nko_4h_0h,res = ko_4h_0h_tb )
 
@@ -266,7 +283,6 @@ GSEAa_4h_0=GSEAa(ko_4h_0_genelist)
 
 GSEAa_4h_0_<- GSEAa_4h_0
 GSEAa_4h_0_@result$Description <- GSEAa_4h_0_@result$ID
-dotplot(GSEAa_4h_0_)
 
 
 gse4h_0 <- gse(ko_4h_0_genelist)
@@ -294,7 +310,8 @@ reactom_4h_0=reactom(ko_4h_0_genelist)
 # 
 # head(formula_res)
 # 
-# dotplot(formula_res, x="group") + facet_grid(~othergroup)
+# dotplot(formula_res, x="group") + facet_grid(~othergroup)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 # 
 # 
 
@@ -309,7 +326,7 @@ write.csv(ko_8h_0h,"KO_time_8h_vs_0h.csv")
 
 ko_8h_0h_tb=tabler(ko_8h_0h)
 
-nko8h_0h=norm_sig(normalized_counts_c,ko_8h_0h_tb)
+nko8h_0h=norm_sig(normalized_counts_c,ko_8h_0h_tb, order)
 
 
 
@@ -331,8 +348,6 @@ GSEAa_8h_0=GSEAa(ko_8h_0_genelist)
 
 GSEAa_8h_0_<- GSEAa_8h_0
 GSEAa_8h_0_@result$Description <- GSEAa_8h_0_@result$ID
-dotplot(GSEAa_8h_0_)
-
 
 
 go8h_0=go(ko_8h_0_genelist)
@@ -361,7 +376,8 @@ reactom_8h_0=reactom(ko_8h_0_genelist)
 # 
 # 
 # 
-# dotplot(formula_res, x="group") + facet_grid(~othergroup)
+# dotplot(formula_res, x="group") + facet_grid(~othergroup)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 # 
 
 
@@ -373,7 +389,7 @@ write.csv(ko_24h_0h,"KO_time_24h_vs_0h.csv")
 
 ko_24h_0h_tb=tabler(ko_24h_0h)
 
-nko_24h_0h=norm_sig(normalized_counts_c,ko_24h_0h_tb)
+nko_24h_0h=norm_sig(normalized_counts_c,ko_24h_0h_tb, order)
 
 
 ko_24h_0_genelist=fc2list(nor = nko_24h_0h,res = ko_24h_0h_tb )
@@ -417,7 +433,8 @@ reactom_24h_0=reactom(ko_24h_0_genelist)
 # 
 # 
 # 
-# dotplot(formula_res, x="group") + facet_grid(~othergroup)
+# dotplot(formula_res, x="group") + facet_grid(~othergroup)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 # 
 # 
 
@@ -435,14 +452,16 @@ reactom_24h_0=reactom(ko_24h_0_genelist)
 # ck1 <- compareCluster(geneCluster = gl1, fun = enrichGO, OrgDb = org.Mm.eg.db)
 # 
 # 
-# dotplot(ck1, showCategory=25)
+# dotplot(ck1, showCategory=25)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 # 
 # #ck2k <- compareCluster(geneCluster = gl1, fun = gseKEGG, organism="mmu")
 # 
 # ck2 <- compareCluster(geneCluster = gl1, fun = enrichPathway, organism="mouse")
 # 
 # 
-# dotplot(ck2,showCategory=25)
+# dotplot(ck2,showCategory=25)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 
 
 
@@ -450,28 +469,32 @@ reactom_24h_0=reactom(ko_24h_0_genelist)
 
 go_mer=merge_result(list("4"=go4h_0,"8"=go8h_0,"24"=go24h_0))
 
-dotplot(mer, showCategory=25, font.size=5)+facet_grid(~Cluster)
+dotplot(go_mer, showCategory=25, font.size=7)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 
 gsea_mer=merge_result(list("4"=gse4h_0,"8"=gse8h_0,"24"=gse24h_0))
 
-dotplot(gsea_mer, showCategory=25, font.size=5)+facet_grid(~Cluster)
+dotplot(gsea_mer, showCategory=25, x="NES",font.size=7)+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
 
 
 GSEA_mer=merge_result(list("4"=GSEAa_4h_0_,"8"=GSEAa_8h_0_,"24"=GSEAa_24h_0_))
 
-dotplot(GSEA_mer, showCategory=25, x="NES", font.size=5)+facet_grid(~Cluster)
+dotplot(GSEA_mer, showCategory=25, x="NES", font.size=7)+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)+scale_size_area(max_size = 5)
+
 
 
 
 kgg_mer=merge_result(list("4"=kgg_4h_0,"8"=kgg_8h_0,"24"=kgg_24_0))
 
-dotplot(mer, showCategory=25, x="NES", font.size=5)+facet_grid(~Cluster)
+dotplot(kgg_mer, showCategory=25, x="NES", font.size=7)+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 
 
 reac_mer=merge_result(list("4"=reactom_4h_0,"8"=reactom_8h_0,"24"=reactom_24h_0))
 
 
-dotplot(reac_mer, showCategory=25, font.size=5)+facet_grid(~Cluster)
+dotplot(reac_mer, showCategory=25, font.size=7)+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=150))+scale_size_area(max_size = 5)
+
 
 
 
@@ -489,7 +512,7 @@ dotplot(reac_mer, showCategory=25, font.size=5)+facet_grid(~Cluster)
 
 
 
-```{r}
+```{r, width=13, height=15}
 # Genotype specific effect at 4h : Main effect + genotypeKO.time4
 # It compares the expression levels between KO and WT directly at 4 hours, considering the genotype-specific effect.
 # It identifies the genes that are differentially expressed between the KO and WT genotypes specifically at 4 hours,
@@ -501,7 +524,7 @@ write.csv(ko_4h,"KO_4h.csv")
 
 ko_4h_tb=tabler(ko_4h)
 
-nko_4h=norm_sig(normalized_counts_c,ko_4h_tb)
+nko_4h=norm_sig(normalized_counts_c,ko_4h_tb, order)
 
 
 ko_4h_genelist=fc2list(nor = nko_4h,res = ko_4h_tb )
@@ -516,7 +539,6 @@ GSEAa_4h=GSEAa(ko_4h_genelist)
 
 GSEAa_4h_<- GSEAa_4h
 GSEAa_4h_@result$Description <- GSEAa_4h_@result$ID
-##dotplot(GSEAa_4h_)
 
 
 
@@ -536,7 +558,7 @@ write.csv(ko_8h,"KO_8h.csv")
 
 ko_8h_tb=tabler(ko_8h)
 
-nko_8h=norm_sig(normalized_counts_c,ko_8h_tb)
+nko_8h=norm_sig(normalized_counts_c,ko_8h_tb,order)
 
 
 ko_8h_genelist=fc2list(nor = nko_8h,res = ko_8h_tb )
@@ -550,7 +572,6 @@ GSEAa_8h=GSEAa(ko_8h_genelist)
 
 GSEAa_8h_<- GSEAa_8h
 GSEAa_8h_@result$Description <- GSEAa_8h_@result$ID
-##dotplot(GSEAa_8h_)
 
 
 kgg_8h=kgg(ko_8h_genelist)
@@ -565,7 +586,7 @@ write.csv(ko_24h,"KO_24h.csv")
 
 ko_24h_tb=tabler(ko_24h)
 
-nko_24h=norm_sig(normalized_counts_c,ko_24h_tb)
+nko_24h=norm_sig(normalized_counts_c,ko_24h_tb,order)
 
 ko_24h_genelist=fc2list(nor = nko_24h,res = ko_24h_tb )
 
@@ -577,7 +598,6 @@ GSEAa_24h=GSEAa(ko_24h_genelist)
 
 GSEAa_24h_<- GSEAa_24h
 GSEAa_24h_@result$Description <- GSEAa_24h_@result$ID
-##dotplot(GSEAa_24h_)
 
 
 go24h=go(ko_24h_genelist)
@@ -603,14 +623,17 @@ reactom_24h=reactom(ko_24h_genelist)
 # ck1 <- compareCluster(geneCluster = gl1, fun = enrichGO, OrgDb = org.Mm.eg.db)
 # 
 # 
-# dotplot(ck1, showCategory=25)
+# dotplot(ck1, showCategory=25)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 # 
 # #ck2k <- compareCluster(geneCluster = gl1, fun = gseKEGG, organism="mmu")
 # 
 # ck2 <- compareCluster(geneCluster = gl1, fun = enrichPathway, organism="mouse")
 # 
 # 
-# dotplot(ck2,showCategory=25)
+# dotplot(ck2,showCategory=25)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
+
 
 
 
@@ -620,19 +643,26 @@ reactom_24h=reactom(ko_24h_genelist)
 
 go_mer=merge_result(list("4"=go4h,"8"=go8h,"24"=go24h))
 
-dotplot(mer, showCategory=25, font.size=5)+facet_grid(~Cluster)
+dotplot(go_mer, showCategory=25, font.size=7)+scale_y_discrete(labels=function(x) str_wrap(x, width=140))+scale_size_area(max_size = 5)
+
 
 gsea_mer=merge_result(list("4"=gse4h,"8"=gse8h,"24"=gse24h))
 
+##dotplot(gsea_mer, showCategory=25, font.size=7)+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
+
+
 kgg_mer=merge_result(list("4"=kgg_4h,"8"=kgg_8h,"24"=kgg_24h))
 
-dotplot(mer, showCategory=25, x="NES", font.size=5)+facet_grid(~Cluster)
+dotplot(kgg_mer, showCategory=25, x="NES", font.size=7)+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=140))+scale_size_area(max_size = 5)
+
 
 
 reac_mer=merge_result(list("4"=reactom_4h,"8"=reactom_8h,"24"=reactom_24h))
 
 
-dotplot(reac_mer, showCategory=50, font.size=5)+facet_grid(~Cluster)
+dotplot(reac_mer, showCategory=50, font.size=7)+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=140))+scale_size_area(max_size = 5)
+
 
 
 
@@ -646,6 +676,8 @@ LRT model for all time points
 
 
 ```{r}
+
+
 dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~genotype+time+time:genotype)
 dds=DESeq(dds, test = "LRT",reduced = ~time)
 dds =dds[rowSums(counts(dds))>5,]
@@ -662,14 +694,14 @@ normalized_counts_c <- normalized_counts_c %>%
 
 
 
-res_table=as.data.frame(results(dds,contrast=list(c("genotype_KO_vs_WT","time_24_vs_0","time_4_vs_0","time_8_vs_0"))))
+res_table=as.data.frame(results(dds,contrast=list(c("time_24_vs_0","time_4_vs_0","time_8_vs_0","genotypeKO.time24","genotypeKO.time4","genotypeKO.time8"))))
 
 
 
 
 LRT_tb=tabler(res_table)
 
-nLRT=norm_sig(normalized_counts_c,LRT_tb)
+nLRT=norm_sig(normalized_counts_c,LRT_tb,order)
 
 
 LRT_genelist=fc2list(nor = nLRT,res = LRT_tb )
@@ -677,30 +709,33 @@ LRT_genelist=fc2list(nor = nLRT,res = LRT_tb )
 
 goLRT=go(LRT_genelist)
 
-dotplot(goLRT, showCategory=25, font.size=5)
+dotplot(goLRT, showCategory=25, font.size=7)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 
 gseLRT <- gse(LRT_genelist)
 
 
-dotplot(gseLRT, showCategory=25, font.size=5, x="NES")
+dotplot(gseLRT, showCategory=25, font.size=7, x="NES")+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 
 
 GSEAa_LRT=GSEAa(LRT_genelist)
 
 GSEAa_LRT_<- GSEAa_LRT
 GSEAa_LRT_@result$Description <- GSEAa_LRT_@result$ID
-dotplot(GSEAa_LRT_, showCategory=25)
 
 
 
 
 kggLRT_=kgg(LRT_genelist)
 
-dotplot(kggLRT_, showCategory=25, x="NES")
+dotplot(kggLRT_, showCategory=25, x="NES")+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 
 reactomLRT_=reactom(LRT_genelist)
 
-dotplot(reactomLRT_, showCategory=25)
+dotplot(reactomLRT_, showCategory=25)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 
 
 
@@ -802,7 +837,8 @@ pheatmap(nLRT, scale = "row", clustering_distance_rows = "correlation", fontsize
 # 
 # 
 # 
-# go_dp=dotplot(go, showCategory=60)
+# go_dp=dotplot(go, showCategory=60)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 # 
 # 
 # up=sig[sig[,3]>0,]
@@ -892,10 +928,12 @@ pheatmap(nLRT, scale = "row", clustering_distance_rows = "correlation", fontsize
 #                 OrgDb = org.Mm.eg.db, 
 #                 ont = c("BP","MF"),     pAdjustMethod = "BH",eps = 0)
 # 
-# gsea=dotplot(gse, showCategory=50, split=".sign") + facet_grid(.~.sign)
+# gsea=dotplot(gse, showCategory=50, split=".sign") + facet_grid(.~.sign)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 # 
-# gsea1=dotplot(gse, showCategory=25, split=".sign", x="NES", decreasing = TRUE,font.size=6)
-# 
+# gsea1=dotplot(gse, showCategory=25, split=".sign", x="NES", decreasing = TRUE,font.size=6)+ scale_size_area(max_size = 10)
+# ++scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 # 
 # 
 # #lapply(1:length(gse$Description), function(i) {gseaplot(gse, by = "all", title = gse$Description[i], geneSetID = i)})
@@ -911,7 +949,8 @@ pheatmap(nLRT, scale = "row", clustering_distance_rows = "correlation", fontsize
 # 
 # 
 # 
-# dotplot(kgg , showCategory=25, split=".sign", x="NES", decreasing = TRUE,font.size=6)
+# dotplot(kgg , showCategory=25, split=".sign", x="NES", decreasing = TRUE,font.size=6)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 # 
 # 
 # 
