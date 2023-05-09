@@ -15,7 +15,7 @@ knitr::opts_current$set(cache = TRUE, warning = FALSE,message = FALSE, cache.laz
 
 ```{r, message=FALSE}
 # Package names
-packages <- c("ggrepel", "pheatmap", "DOSE", "clusterProfiler", "ensembldb", "annotables", "apeglm", "RColorBrewer", "vsn", "DESeq2", "ggplot2", "reshape2", "gage", "gageData", "AnnotationDbi", "tidyr", "dplyr", "org.Mm.eg.db", "gplots", "GO.db", "GOstats", "AnnotationHub", "pathview", "plyr", "tidyverse", "purrr", "GSEABase", "igraph", "vissE", "patchwork", "msigdb", "tibble", "msigdbr","fgsea", "GEOquery","EnhancedVolcano","ggvenn","readxl","msigdbr","Biobase","DEGreport")
+packages <- c("ggrepel", "pheatmap", "DOSE", "clusterProfiler", "ensembldb", "annotables", "apeglm", "RColorBrewer", "vsn", "DESeq2", "ggplot2", "reshape2", "gage", "gageData", "AnnotationDbi", "tidyr", "dplyr", "org.Mm.eg.db", "gplots", "GO.db", "GOstats", "AnnotationHub", "pathview", "plyr", "tidyverse", "purrr", "GSEABase", "igraph", "vissE", "patchwork", "msigdb", "tibble", "msigdbr","fgsea", "GEOquery","EnhancedVolcano","ggvenn","readxl","msigdbr","Biobase","DEGreport","readxl")
 
 # Install packages not yet installed
 installed_packages <- packages %in% rownames(installed.packages())
@@ -63,7 +63,7 @@ res_table_tb <- res_table %>%
   as_tibble()
 
 
-sig <- res_table_tb[which(res_table_tb[,7]<0.05 & abs(res_table_tb[,3])>0),]
+sig <- res_table_tb[which(res_table_tb[,7]<0.05 & abs(res_table_tb[,3])>2),]
 
 
 
