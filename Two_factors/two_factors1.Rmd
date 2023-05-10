@@ -25,7 +25,7 @@ if (any(installed_packages == FALSE)) {
   BiocManager::install(packages[!installed_packages])
 }
 
-# Packages loading
+
 invisible(lapply(packages, library, character.only = TRUE))
 ```
 
@@ -85,9 +85,9 @@ GSEAa=function(kegg_gene_list){
 GSEA(kegg_gene_list,
 TERM2GENE = term2gene,
 TERM2NAME = term2name,
-pvalueCutoff = 1.00,
+pvalueCutoff = 0.05,
 minGSSize = 15,
-maxGSSize = 500)
+maxGSSize = 500, eps=0)
 }
 
 
@@ -106,13 +106,13 @@ gse_go <- function(kegg_gene_list){
     gseGO(gene = kegg_gene_list, 
                 keyType = "ENTREZID",
                 OrgDb = org.Mm.eg.db, 
-                ont = "BP",     pAdjustMethod = "BH",eps = 0)
+                ont = "BP",     pAdjustMethod = "BH",eps = 0,nPermSimple=10000)
 }
 
 
 
 gse_kgg <- function(kegg_gene_list){
-  gseKEGG(geneList= kegg_gene_list, organism= "mmu", maxGSSize    = 400, pvalueCutoff = 0.05,pAdjustMethod = "BH",by = "fgsea")
+  gseKEGG(geneList= kegg_gene_list, organism= "mmu", maxGSSize    = 400, pvalueCutoff = 0.05,pAdjustMethod = "BH",by = "fgsea",eps = 0)
 }
 
 enrich_kgg=function(kegg_gene_list){
@@ -150,6 +150,9 @@ EnhancedVolcano(res,
 
 
 ```
+
+
+Enrich_genes will find genes where the difference is large, but it will not detect a situation where the difference is small. GSE finds differences evidenced in coordinated way in a set of related genes (Subramanian et al. 2005).
 
 
 
@@ -563,7 +566,12 @@ GSEAa_4h_@result$Description <- GSEAa_4h_@result$ID
 
 gse_kgg_4h=gse_kgg(ko_4h_genelist)
 
+enrich_kgg_4h=enrich_kgg(ko_4h_genelist)
+
 enrich_reactom_4h=enrich_reactom(ko_4h_genelist)
+
+gse_reactom_4h=gse_reactom(ko_4h_genelist)
+
 
 
 
@@ -595,6 +603,10 @@ GSEAa_8h_@result$Description <- GSEAa_8h_@result$ID
 
 gse_kgg_8h=gse_kgg(ko_8h_genelist)
 
+enrich_kgg_8h=enrich_kgg(ko_8h_genelist)
+
+gse_reactom_8h=gse_reactom(ko_8h_genelist)
+
 enrich_reactom_8h=enrich_reactom(ko_8h_genelist)
 
 
@@ -622,10 +634,15 @@ GSEAa_24h_@result$Description <- GSEAa_24h_@result$ID
 enrich_go24h=enrich_go(ko_24h_genelist)
 
 
+gse_go24h=gse_go(ko_24h_genelist)
+
+enrich_kgg_24h=enrich_kgg(ko_24h_genelist)
+
 gse_kgg_24h=gse_kgg(ko_24h_genelist)
 
 enrich_reactom_24h=enrich_reactom(ko_24h_genelist)
 
+gse_reactom_24h=gse_reactom(ko_24h_genelist)
 
 
 
@@ -664,17 +681,17 @@ dotplot(enrich_go_mer, showCategory=25, font.size=7)+scale_y_discrete(labels=fun
 
 gse_go_mer=merge_result(list("4"=gse_go4h,"8"=gse_go8h,"24"=gse_go24h))
 
-dotplot(gse_go_mer, showCategory=25, x="NES",font.size=7)+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+##dotplot(gse_go_mer, showCategory=25, x="NES",font.size=7)+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
 
 
-enrich_kgg_mer=merge_result(list("4"=enrich_kgg4h,"8"=enrich_kgg8h,"24"=enrich_kgg24h))
+enrich_kgg_mer=merge_result(list("4"=enrich_kgg_4h,"8"=enrich_kgg_8h,"24"=enrich_kgg_24h))
 
 dotplot(enrich_kgg_mer, showCategory=25, font.size=7)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
 
 
 gse_kgg_mer=merge_result(list("4"=gse_kgg_4h,"8"=gse_kgg_8h,"24"=gse_kgg_24h))
 
-dotplot(gse_kgg_mer, showCategory=25, x="NES",font.size=7)+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+##dotplot(gse_kgg_mer, showCategory=25, x="NES",font.size=7)+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
 
 
 
@@ -688,7 +705,7 @@ dotplot(gse_kgg_mer, showCategory=25, x="NES",font.size=7)+facet_grid(~Cluster)+
 
 GSEA_mer=merge_result(list("4"=GSEAa_4h_,"8"=GSEAa_8h_,"24"=GSEAa_24h_))
 
-dotplot(GSEA_mer, showCategory=25, x="NES", font.size=7)+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)+scale_size_area(max_size = 5)
+##dotplot(GSEA_mer, showCategory=25, x="NES", font.size=7)+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)+scale_size_area(max_size = 5)
 
 
 
@@ -704,7 +721,7 @@ dotplot(enrich_reac_mer, showCategory=25, font.size=7)+scale_y_discrete(labels=f
 gse_reac_mer=merge_result(list("4"=gse_reactom_4h,"8"=gse_reactom_8h,"24"=gse_reactom_24h))
 
 
-dotplot(gse_reac_mer, showCategory=25, font.size=7,x="NES")+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=150))+scale_size_area(max_size = 5)
+##dotplot(gse_reac_mer, showCategory=25, font.size=7,x="NES")+facet_grid(~Cluster)+scale_y_discrete(labels=function(x) str_wrap(x, width=150))+scale_size_area(max_size = 5)
 
 
 
@@ -720,13 +737,13 @@ LRT model for all time points
 ```{r}
 
 
-dds=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~genotype+time+time:genotype)
-dds=DESeq(dds, test = "LRT",reduced = ~time)
-dds =dds[rowSums(counts(dds))>5,]
-sizeFactors(dds)
+ddsl=DESeqDataSetFromMatrix(countData = countData, colData = colData, design = ~genotype+time+time:genotype)
+ddsl=DESeq(dds, test = "LRT",reduced = ~time)
+ddsl =dds[rowSums(counts(dds))>5,]
+sizeFactors(ddsl)
 
 
-normalized_counts_c=counts(dds, normalized=TRUE)
+normalized_counts_c=counts(ddsl, normalized=TRUE)
 
 
 normalized_counts_c <- normalized_counts_c %>%
@@ -736,7 +753,7 @@ normalized_counts_c <- normalized_counts_c %>%
 
 
 
-res_table=as.data.frame(results(dds,contrast=list(c("time_24_vs_0","time_4_vs_0","time_8_vs_0","genotypeKO.time24","genotypeKO.time4","genotypeKO.time8"))))
+res_table=as.data.frame(results(ddsl,contrast=list(c("time_24_vs_0","time_4_vs_0","time_8_vs_0","genotypeKO.time24","genotypeKO.time4","genotypeKO.time8"))))
 
 
 
@@ -768,6 +785,10 @@ GSEAa_LRT_@result$Description <- GSEAa_LRT_@result$ID
 
 
 
+enrich_kggLRT_=enrich_kgg(LRT_genelist)
+
+dotplot(enrich_kggLRT_, showCategory=25)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
+
 
 gse_kggLRT_=gse_kgg(LRT_genelist)
 
@@ -778,7 +799,9 @@ enrich_reactomLRT_=enrich_reactom(LRT_genelist)
 
 dotplot(enrich_reactomLRT_, showCategory=25)+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
 
+gse_reactomLRT_=gse_reactom(LRT_genelist)
 
+##dotplot(gse_reactomLRT_, showCategory=25, x="NES")+scale_y_discrete(labels=function(x) str_wrap(x, width=80))+scale_size_area(max_size = 5)
 
 
 
