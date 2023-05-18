@@ -99,7 +99,7 @@ enrich_go <- function(sig_genes){
                 ont = "BP", 
                 pAdjustMethod = "BH", 
                 qvalueCutoff = 0.05, 
-                readable = TRUE)}
+                readable = TRUE,minGSSize = 15, maxGSSize = 500)}
 
 
 gse_go <- function(kegg_gene_list){
@@ -112,14 +112,14 @@ gse_go <- function(kegg_gene_list){
 
 
 gse_kgg <- function(kegg_gene_list){
-  gseKEGG(geneList= kegg_gene_list, organism= "mmu", maxGSSize    = 400, pvalueCutoff = 0.05,pAdjustMethod = "BH",by = "fgsea",eps = 0)
+  gseKEGG(geneList= kegg_gene_list, organism= "mmu", maxGSSize    = 500,minGSSize = 15, pvalueCutoff = 0.05,pAdjustMethod = "BH",by = "fgsea",eps = 0)
 }
 
 enrich_kgg=function(kegg_gene_list){
 enrichKEGG(names(kegg_gene_list), organism="mmu",pAdjustMethod = "BH", universe = as.character(grcm38$entrez))}
 
 enrich_reactom=function(kegg_gene_list){
-enrichPathway(gene=names(kegg_gene_list),pvalueCutoff=0.05, readable=T,organism = "mouse")
+enrichPathway(gene=names(kegg_gene_list),pvalueCutoff=0.05, readable=T,organism = "mouse",minGSSize = 15,maxGSSize = 500)
 }
 
 gse_reactom=function(kegg_gene_list){
@@ -146,6 +146,15 @@ EnhancedVolcano(res,
     lab = rownames(res),
     x = 'log2FoldChange',
     y = 'qvalue')
+}
+
+
+plotit <- function(d, title) {
+  ggplot(d, aes(x=cond, y=log2c, group=geno)) + 
+    geom_jitter(size=1.5, position = position_jitter(width=.15)) +
+    facet_wrap(~ geno) + 
+    stat_summary(fun.y=mean, geom="line", colour="red", size=0.8) + 
+    xlab("condition") + ylab("log2(counts+1)") + ggtitle(title)
 }
 
 
@@ -290,7 +299,7 @@ normalized_counts_c <- normalized_counts_c %>%
 # It compares the expression levels between KO and WT at 4 hours relative to time 0
 # The ko_4h_0h  takes into account the change in gene expression from time 0 to 4 hours for both genotypes
 # and then estimates the differential expression between KO and WT specifically at 4 hours, relative to time 0.
-ko_4h_0h=results(dds, contrast=list(c("time_4_vs_0","genotypeKO.time4")), test="Wald")
+ko_4h_0h=results(dds, contrast=list(c("genotype_KO_vs_WT","genotypeKO.time4","time_4_vs_0")), test="Wald")
 write.csv(as.data.frame(ko_4h_0h),"KO_time_4h_vs_0h.csv")
 
 ko_4h_0h_tb=tabler(ko_4h_0h)
@@ -348,7 +357,7 @@ gse_reactom_4h_0=gse_reactom(ko_4h_0_genelist)
 
 # KO_8h_vs_0h : 8h vs 0h in KO.
 # It compares the expression levels between KO and WT at 8 hours relative to time 0
-ko_8h_0h=results(dds, contrast=list(c("time_8_vs_0","genotypeKO.time8")), test="Wald")
+ko_8h_0h=results(dds, contrast=list(c("genotype_KO_vs_WT","genotypeKO.time8","time_8_vs_0")), test="Wald")
 write.csv(ko_8h_0h,"KO_time_8h_vs_0h.csv")
 
 
@@ -415,7 +424,7 @@ gse_reactom_8h_0=gse_reactom(ko_8h_0_genelist)
 
 # KO_24h_vs_0h : 24h vs 0h in KO.
 # It compares the expression levels between KO and WT at 24 hours relative to time 0
-ko_24h_0h=results(dds, contrast=list(c("time_24_vs_0","genotypeKO.time24")), test="Wald")
+ko_24h_0h=results(dds, contrast=list(c("genotype_KO_vs_WT","genotypeKO.time24","time_24_vs_0")), test="Wald")
 write.csv(ko_24h_0h,"KO_time_24h_vs_0h.csv")
 
 ko_24h_0h_tb=tabler(ko_24h_0h)
